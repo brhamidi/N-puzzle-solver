@@ -5,6 +5,9 @@
 # include <queue>
 # include <list>
 # include "Npuzzle.hpp"
+# include <iostream>
+# include <random>
+# include <algorithm>
 
 class Solver
 {
@@ -13,13 +16,13 @@ class Solver
 		Solver(Solver const &);
 		Solver & operator=(Solver const &);
 
-		void				_generate(void);
 		void				_generateSolved(void);
 		int					_getEmptyPos(void) const;
 
 		int					_n;
 		std::vector<std::vector<int> >	_puzzle;
 		std::vector<std::vector<int> >	_puzzleSolved;
+		std::vector<std::vector<int>>	_generate(void) const;
 
 	public:
 		~Solver(void);
@@ -29,8 +32,11 @@ class Solver
 		std::list<std::vector<std::vector<int> > > solve(void);
 		bool					solved(void) const;
 		const std::vector<std::vector<int> > &	getPuzzle(void) const;
-		void					move(eDir dir);
+		bool	canMove(eDir dir, std::vector<std::vector<int> > grid) const;
+		std::vector<std::vector<int> >	move(eDir dir, std::vector<std::vector<int> > grid) const;
 		void					print(const std::vector<std::vector<int> > &) const;
+		size_t					getSize(void) const;
+		void					print(void) const;
 
 };
 
