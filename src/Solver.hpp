@@ -4,6 +4,9 @@
 # include <vector>
 # include <queue>
 # include <list>
+# include <iostream>
+# include <random>
+# include <algorithm>
 
 class Solver
 {
@@ -12,7 +15,7 @@ class Solver
 		Solver(Solver const &);
 		Solver & operator=(Solver const &);
 
-		void				_generate(void);
+		std::vector<std::vector<int>>	_generate(void) const;
 
 		size_t				_n;
 		std::vector<std::vector<int>>	_puzzle;
@@ -25,8 +28,10 @@ class Solver
 		std::list<std::vector<std::vector<int>>> solve(void);
 		bool					solved(void) const;
 		const std::vector<std::vector<int>> &	getPuzzle(void) const;
+		size_t					getSize(void) const;
 		void					move(int dir);
-		void					print(const std::vector<std::vector<int>> &) const;
+		void		print(const std::vector<std::vector<int>> &) const;
+		void					print(void) const;
 
 };
 
