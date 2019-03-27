@@ -8,6 +8,8 @@
 # include <random>
 # include <algorithm>
 
+# include "Npuzzle.hpp"
+
 class Solver
 {
 	private:
@@ -16,6 +18,8 @@ class Solver
 		Solver & operator=(Solver const &);
 
 		std::vector<std::vector<int>>	_generate(void) const;
+		int				_getEmptyPos(void) const;
+		void				_generateSolved(void);
 
 		size_t				_n;
 		std::vector<std::vector<int>>	_puzzle;
@@ -28,10 +32,11 @@ class Solver
 		std::list<std::vector<std::vector<int>>> solve(void);
 		bool					solved(void) const;
 		const std::vector<std::vector<int>> &	getPuzzle(void) const;
+		std::vector<std::vector<int>> 		getCopyPuzzle(void) const;
 		size_t					getSize(void) const;
-		void					move(int dir);
-		void		print(const std::vector<std::vector<int>> &) const;
-		void					print(void) const;
+		void					print(const std::vector<std::vector<int>> &) const;
+		std::vector<std::vector<int> > move(eDir dir, std::vector<std::vector<int> > grid) const;
+		bool	canMove(eDir dir, std::vector<std::vector<int> > grid) const;
 
 };
 
