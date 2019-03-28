@@ -1,9 +1,7 @@
 #ifndef GRAPHIC_DISPLAYER_HPP
 # define GRAPHIC_DISPLAYER_HPP
 
-# include <opencv2/core/core.hpp>
-# include <opencv2/highgui/highgui.hpp>
-# include <opencv2/imgproc.hpp>
+# include "Croped_image_generator.hpp"
 # include <SFML/Window.hpp>
 # include <SFML/Graphics.hpp>
 # include <vector>
