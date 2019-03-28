@@ -15,6 +15,11 @@ namespace Croped_image_generator
 	bool	image_divider(int n_line, std::string image_name)
 	{
 		cv::Mat	image;
+		cv::Mat	resized;
+		int tl = 0, tr = 0, br = 0, bl = 0;
+		int x = -1;
+		int y = 0;
+		int name = 0;
 
 		image = cv::imread(image_name);
 		//TODO
@@ -25,13 +30,7 @@ namespace Croped_image_generator
 			std::cout <<  "Could not open or find the image" << std::endl ;
 			return (false);
 		}
-		cv::Mat	resized;
 		cv::resize(image, resized, cv::Size(600, 600));
-		int tl = 0, tr = 0, br = 0, bl = 0;
-
-		int x = -1;
-		int y = 0;
-		int name = 0;
 		while (name < n_line * n_line)
 		{
 			while (++x + tr < n_line && name < n_line * n_line)
@@ -73,9 +72,20 @@ bool	Graphic_displayer::_fill_textures_sprites_lists(int size)
 Graphic_displayer::Graphic_displayer(int size, std::string name): _size(size)
 {
 	if (!Croped_image_generator::image_divider(size, name))
+	{
 		std::cout << "Error while creating croped image, please make sure 'images' folder and that <0 - (size * size)>.jpg exist/got permissions\n";
-	_fill_textures_sprites_lists(size);
-	this->_window = new sf::RenderWindow(sf::VideoMode(600, 600), "N puzzle");
+		return ;
+	}
+	if (!_fill_textures_sprites_lists(size))
+	{
+		std::cout << "Error while loading texture, please make sure 'images' folder and that <0 - size * size>.jpg exist/got permissions\n";
+		return ;
+	}
+	if (!(this->_window = new sf::RenderWindow(sf::VideoMode(600, 600), "N puzzle")))
+	{
+		std::cout << "Error while loading SFML window\n";
+		return ;
+	}
 	this->_dir[sf::Keyboard::Left] = eDir::Left;
 	this->_dir[sf::Keyboard::Right] = eDir::Right;
 	this->_dir[sf::Keyboard::Up] = eDir::Up;
@@ -90,14 +100,25 @@ Graphic_displayer::~Graphic_displayer(void)
 		delete s;
 	for (sf::Texture* t : this->_textures_list)
 		delete t;
-	this->_window->close();
+	if (this->_window)
+		this->_window->close();
 	delete this->_window;
 }
 
-bool	Graphic_displayer::list_displayer(const std::vector<std::vector<int>> &grid) const
+bool	Graphic_displayer::list_displayer(const Grid &grid) const
 {
 	int	i = 0;
-
+	
+	if (this->_sprites_list.size() != this->_size * this->_size)
+	{
+		std::cout << "Error can't print while sprites are not all available\n";
+		return false;
+	}
+	if (!this->_window)
+	{
+		std::cout << "Error SFML window not loaded\n";
+		return false;
+	}
 	this->_window->clear(sf::Color::Black);
 	for (auto line : grid)
 		for (auto c : line)
@@ -113,7 +134,11 @@ bool	Graphic_displayer::list_displayer(const std::vector<std::vector<int>> &grid
 eDir	Graphic_displayer::getEvent(void)
 {
 	sf::Event	event;
-
+	if (!this->_window)
+	{
+		std::cout << "Error SFML window not loaded\n";
+		return eDir::Error;
+	}
 	while (_window->waitEvent(event))
 	{
 		if (event.type == sf::Event::KeyPressed &&

@@ -1,21 +1,39 @@
 #include "Solver.hpp"
-#include "Graphic_displayer.hpp"
 #include "Npuzzle.hpp"
+#include "Graphic_displayer.hpp"
 
 int main()
 {
-	Solver a(3);
-	Graphic_displayer		*displayer = new Graphic_displayer(3, "taq3");
+	Graphic_displayer		*displayer = new Graphic_displayer(5, "taq5");
+	Solver a(5);
 	eDir e;
-	displayer->list_displayer(a.getPuzzle());
-	while ((e = displayer->getEvent()) != eDir::Exit)
+	Grid grid = a.getPuzzle();
+	displayer->list_displayer(grid);
+	while ((e = displayer->getEvent()) != eDir::Exit && e != eDir::Error)
 	{
 		if (e != eDir::Resolve)
-			a.move(e);
-		a.print(a.getPuzzle());
-		displayer->list_displayer(a.getPuzzle());
+			if (a.canMove(e, grid))
+			{
+				grid = a.move(e, grid);
+				std::cout << "move grid, new grid\n";
+			}
+		a.print(grid);
+		displayer->list_displayer(grid);
 	}
 	delete displayer;
 	return 0;
-
 }
+
+/*# include "Solver.hpp"
+# include "Npuzzle.hpp"
+#include "Graphic_displayer.hpp"
+
+int main()
+{
+	const Solver x(3);
+
+	x.print( x.getPuzzle() );
+	std::cout << std::endl;
+	if (x.canMove(Right, x.getPuzzle()))
+		x.print( x.move(Right, x.getCopyPuzzle()) );
+}*/

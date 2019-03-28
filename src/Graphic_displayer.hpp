@@ -18,7 +18,7 @@ class Graphic_displayer
 	public:
 		Graphic_displayer(int size, std::string name);
 		~Graphic_displayer(void);
-		bool	list_displayer(const std::vector<std::vector<int>>&) const;
+		bool	list_displayer(const Grid&) const;
 		eDir	getEvent(void);
 
 
