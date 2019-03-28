@@ -11,14 +11,23 @@ bool	Solver::canMove(eDir dir, Grid grid) const
 	&& dir_coor[dir][1] + pos % this->_n >= 0);
 }
 
-
-Grid	Solver::move(eDir dir, Grid grid) const
+void	Solver::_gridMover(eDir dir, Grid &grid)
 {
 	const Grid	dir_coor = {{1, 0}, {0, -1}, {-1, 0}, {0, 1}};
 	int			pos = this->_getEmptyPos(grid);
 
 	std::swap(grid[dir_coor[dir][0] + pos / this->_n][dir_coor[dir][1] + pos % this->_n], grid[pos / this->_n][pos % this->_n]);
-	return grid;
+}
+
+void	Solver::move(eDir dir)
+{
+	this->_gridMover(dir, this->_puzzle);
+}
+
+Grid	Solver::move(eDir dir, Grid grid)
+{
+	this->_gridMover(dir, grid);
+	return (grid);
 }
 
 Solver::Solver(size_t n):
@@ -118,4 +127,9 @@ void Solver::print(const Grid & puzzle) const
 			std::cout << (x == (n * n) ? " " : std::to_string(x)) << " ";
 		std::cout << std::endl;
 	}
+}
+
+bool	Solver::solved(Grid grid) const
+{
+	return (grid == this->_puzzleSolved);
 }
