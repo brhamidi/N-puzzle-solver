@@ -1,7 +1,31 @@
 #include "Solver.hpp"
 
-Solver::Solver(size_t n): _n(n)
+bool	Solver::canMove(eDir dir, Grid grid) const
 {
+	const Grid	dir_coor = {{1, 0}, {0, -1}, {-1, 0}, {0, 1}};
+	int			pos = this->_getEmptyPos(grid);
+
+	return (dir_coor[dir][0] + pos / this->_n < this->_n
+	&& dir_coor[dir][0] + pos / this->_n >= 0
+	&& dir_coor[dir][1] + pos % this->_n < this->_n
+	&& dir_coor[dir][1] + pos % this->_n >= 0);
+}
+
+
+Grid	Solver::move(eDir dir, Grid grid) const
+{
+	const Grid	dir_coor = {{1, 0}, {0, -1}, {-1, 0}, {0, 1}};
+	int			pos = this->_getEmptyPos(grid);
+
+	std::swap(grid[dir_coor[dir][0] + pos / this->_n][dir_coor[dir][1] + pos % this->_n], grid[pos / this->_n][pos % this->_n]);
+	return grid;
+}
+
+Solver::Solver(size_t n):
+	_n(n), _puzzleSolved(n, std::vector<int>(n)), _puzzle(n, std::vector<int>(n))
+
+{
+	this->_generateSolved();
 	this->_puzzle = _generate();
 }
 
@@ -35,12 +59,12 @@ void	Solver::_generateSolved(void)
 	}
 }
 
-std::vector<std::vector<int>> Solver::_generate(void) const
+Grid Solver::_generate(void) const
 {
 	std::random_device rd;
 	std::mt19937 g(rd());
 	std::vector<int> range(this->_n * this->_n);
-	std::vector<std::vector<int>> puzzle(this->_n, std::vector<int>(this->_n));
+	Grid puzzle(this->_n, std::vector<int>(this->_n));
 	std::vector<int>::iterator it;
 
 	for (int i = 0; i < this->_n * this->_n; ++i)
@@ -53,61 +77,39 @@ std::vector<std::vector<int>> Solver::_generate(void) const
 	return puzzle;
 }
 
-int		Solver::_getEmptyPos(void) const
+int		Solver::_getEmptyPos(Grid grid) const
 {
 	int i = 0;
 
-	for (std::vector<int> line : this->_puzzle)
+	for (std::vector<int> line : grid)
 	{
 		for (int n : line)
+		{
 			if (n == this->_n * this->_n)
 				return i;
 			else
 				++i;
+		}
 	}
 	return -1;
 }
 
-bool	Solver::canMove(eDir dir, std::vector<std::vector<int> > grid) const
-{
-	const std::vector<std::vector<int> >	dir_coor
-		= {{1, 0}, {0, -1}, {-1, 0}, {0, 1}};
-	const int				pos = this->_getEmptyPos();
-
-	return (dir_coor[dir][0] + pos / this->_n < this->_n
-			&& dir_coor[dir][0] + pos / this->_n >= 0
-			&& dir_coor[dir][1] + pos % this->_n < this->_n
-			&& dir_coor[dir][1] + pos % this->_n >= 0);
-}
-
-
-std::vector<std::vector<int> >	Solver::move(eDir dir, std::vector<std::vector<int> > grid) const
-{
-	const std::vector<std::vector<int> >	dir_coor =
-		{{1, 0}, {0, -1}, {-1, 0}, {0, 1}};
-	const int				pos = this->_getEmptyPos();
-
-	std::swap(grid[dir_coor[dir][0] + pos / this->_n][dir_coor[dir][1] + pos % this->_n],
-			grid[pos / this->_n][pos % this->_n]);
-	return grid;
-}
-
-std::vector<std::vector<int>> Solver::getCopyPuzzle(void) const
+Grid Solver::getCopyPuzzle(void) const
 {
 	return this->_puzzle;
 }
 
-const std::vector<std::vector<int>> & Solver::getPuzzle(void) const
+const Grid & Solver::getPuzzle(void) const
 {
 	return this->_puzzle;
 }
 
-size_t Solver::getSize(void) const
+int	Solver::getSize(void) const
 {
 	return this->_n;
 }
 
-void Solver::print(const std::vector<std::vector<int>> & puzzle) const
+void Solver::print(const Grid & puzzle) const
 {
 	const size_t n = puzzle.size();;
 

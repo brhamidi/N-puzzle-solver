@@ -4,6 +4,7 @@
 # include <vector>
 # include <queue>
 # include <list>
+# include "Npuzzle.hpp"
 # include <iostream>
 # include <random>
 # include <algorithm>
@@ -17,26 +18,27 @@ class Solver
 		Solver(Solver const &);
 		Solver & operator=(Solver const &);
 
-		std::vector<std::vector<int>>	_generate(void) const;
-		int				_getEmptyPos(void) const;
 		void				_generateSolved(void);
+		int					_getEmptyPos(Grid) const;
+		Grid				_generate(void) const;
 
-		size_t				_n;
-		std::vector<std::vector<int>>	_puzzle;
-		std::vector<std::vector<int>>	_puzzleSolved;
+		int		_n;
+		Grid	_puzzle;
+		Grid	_puzzleSolved;
 	public:
 		~Solver(void);
 		Solver(size_t n);
 		Solver(std::queue<int>, size_t n);
 
-		std::list<std::vector<std::vector<int>>> solve(void);
-		bool					solved(void) const;
-		const std::vector<std::vector<int>> &	getPuzzle(void) const;
-		std::vector<std::vector<int>> 		getCopyPuzzle(void) const;
-		size_t					getSize(void) const;
-		void					print(const std::vector<std::vector<int>> &) const;
-		std::vector<std::vector<int> > move(eDir dir, std::vector<std::vector<int> > grid) const;
-		bool	canMove(eDir dir, std::vector<std::vector<int> > grid) const;
+		std::list<Grid >	solve(void);
+		bool				solved(void) const;
+		const Grid &		getPuzzle(void) const;
+		bool				canMove(eDir dir, Grid grid) const;
+		Grid				move(eDir dir, Grid grid) const;
+		void				print(const Grid &) const;
+		int					getSize(void) const;
+		void				print(void) const;
+		Grid 				getCopyPuzzle(void) const;
 
 };
 
