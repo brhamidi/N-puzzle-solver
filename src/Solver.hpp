@@ -8,6 +8,7 @@
 # include <iostream>
 # include <random>
 # include <algorithm>
+# include <cmath>
 
 # include "Npuzzle.hpp"
 
@@ -30,13 +31,16 @@ class Solver
 		Solver(size_t n);
 		Solver(std::queue<int>, size_t n);
 
-		std::list<Grid >	solve(void);
+		int				getCoordSolved(int value, bool b) const;
+		int				g(const Grid & n, const std::queue<Grid> &);
+		int				h(const Grid & n) const;
+		std::list<Grid >		solve(Grid) const;
 		bool				solved(void) const;
-		const Grid &		getPuzzle(void) const;
+		const Grid &			getPuzzle(void) const;
 		bool				canMove(eDir dir, Grid grid) const;
 		Grid				move(eDir dir, Grid grid) const;
 		void				print(const Grid &) const;
-		int					getSize(void) const;
+		int				getSize(void) const;
 		void				print(void) const;
 		Grid 				getCopyPuzzle(void) const;
 
