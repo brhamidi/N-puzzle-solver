@@ -22,6 +22,7 @@ class Solver
 		void				_generateSolved(void);
 		int					_getEmptyPos(Grid) const;
 		Grid				_generate(void) const;
+		void				_gridMover(eDir dir, Grid &grid);
 
 		int		_n;
 		Grid	_puzzle;
@@ -36,9 +37,11 @@ class Solver
 		int				h(const Grid & n) const;
 		std::list<Grid >		solve(Grid) const;
 		bool				solved(void) const;
+		bool				solved(Grid) const;
 		const Grid &			getPuzzle(void) const;
 		bool				canMove(eDir dir, Grid grid) const;
-		Grid				move(eDir dir, Grid grid) const;
+		Grid				move(eDir dir, Grid grid);
+		void				move(eDir dir);
 		void				print(const Grid &) const;
 		int				getSize(void) const;
 		void				print(void) const;

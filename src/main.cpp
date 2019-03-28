@@ -6,5 +6,5 @@ int main()
 {
 	const Solver x(3);
 
-	x.solve( x.getPuzzle() );
+	x.print( x.getPuzzle() );
 }
