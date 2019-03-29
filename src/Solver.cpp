@@ -6,9 +6,49 @@ bool	Solver::canMove(eDir dir, Grid grid) const
 	int			pos = this->_getEmptyPos(grid);
 
 	return (dir_coor[dir][0] + pos / this->_n < this->_n
-	&& dir_coor[dir][0] + pos / this->_n >= 0
-	&& dir_coor[dir][1] + pos % this->_n < this->_n
-	&& dir_coor[dir][1] + pos % this->_n >= 0);
+			&& dir_coor[dir][0] + pos / this->_n >= 0
+			&& dir_coor[dir][1] + pos % this->_n < this->_n
+			&& dir_coor[dir][1] + pos % this->_n >= 0);
+}
+
+int	Solver::g(const Grid & g, const std::queue<Grid> & closed)
+{
+	return closed.size();
+}
+
+int	Solver::getCoordSolved(int value, bool b) const
+{
+	for (int y = 0; y < this->_n; ++y) {
+		for (int x = 0; x < this->_n; ++x) {
+			if (value == this->_puzzleSolved[y][x])
+				return b ? y : x;
+		}
+	}
+	return (-1);
+}
+
+int	Solver::h(const Grid & g) const
+{
+	int res = 0;
+
+	for (int y = 0; y < this->_n; ++y) {
+		for (int x = 0; x < this->_n; ++x) {
+			res += abs(y - getCoordSolved(g[y][x], true))
+				+ abs(x - getCoordSolved(g[y][x], false));
+		}
+	}
+	return res;
+}
+
+std::list<Grid>	Solver::solve(Grid g) const
+{
+	auto cmp = [](std::pair<Grid, int> left, std::pair<Grid, int> right){return left.second > right.second;};
+	std::priority_queue<std::pair<Grid, int>, std::vector<std::pair<Grid, int>>, decltype(cmp)> open(cmp);
+	std::queue<Grid> closed;
+	bool success = false;
+	std::pair<Grid, int> e;
+
+	return std::list<Grid>(1, g);
 }
 
 void	Solver::_gridMover(eDir dir, Grid &grid)
