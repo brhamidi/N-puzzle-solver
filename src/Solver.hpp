@@ -3,6 +3,7 @@
 
 # include <vector>
 # include <queue>
+# include <stack>
 # include <list>
 # include "Npuzzle.hpp"
 # include <iostream>
@@ -11,6 +12,12 @@
 # include <cmath>
 
 # include "Npuzzle.hpp"
+
+struct Node {
+	Node 	*parent;
+	Grid	grid;
+	int	cost;
+};
 
 class Solver
 {
@@ -22,7 +29,7 @@ class Solver
 		void				_generateSolved(void);
 		int					_getEmptyPos(Grid) const;
 		Grid				_generate(void) const;
-		void				_gridMover(eDir dir, Grid &grid);
+		void				_gridMover(eDir dir, Grid &grid) const;
 
 		int		_n;
 		Grid	_puzzle;
@@ -32,7 +39,9 @@ class Solver
 		Solver(size_t n);
 		Solver(std::queue<int>, size_t n);
 
-		int				getCoordSolved(int value, bool b) const;
+		std::stack<Grid>		getSuccessor(Node *curr) const;
+		std::list<Grid>			reconstruct_path(Node *) const;
+		int				getCoordSolved(int , bool) const;
 		int				g(const Grid & n, const std::queue<Grid> &);
 		int				h(const Grid & n) const;
 		std::list<Grid >		solve(Grid) const;
@@ -40,7 +49,7 @@ class Solver
 		bool				solved(Grid) const;
 		const Grid &			getPuzzle(void) const;
 		bool				canMove(eDir dir, Grid grid) const;
-		Grid				move(eDir dir, Grid grid);
+		Grid				move(eDir dir, Grid grid) const;
 		void				move(eDir dir);
 		void				print(const Grid &) const;
 		int				getSize(void) const;

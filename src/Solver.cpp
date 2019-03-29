@@ -24,7 +24,7 @@ int	Solver::getCoordSolved(int value, bool b) const
 				return b ? y : x;
 		}
 	}
-	return (-1);
+	return (0);
 }
 
 int	Solver::h(const Grid & g) const
@@ -40,18 +40,70 @@ int	Solver::h(const Grid & g) const
 	return res;
 }
 
-std::list<Grid>	Solver::solve(Grid g) const
+std::list<Grid> Solver::reconstruct_path(Node *e) const
 {
-	auto cmp = [](std::pair<Grid, int> left, std::pair<Grid, int> right){return left.second > right.second;};
-	std::priority_queue<std::pair<Grid, int>, std::vector<std::pair<Grid, int>>, decltype(cmp)> open(cmp);
-	std::queue<Grid> closed;
-	bool success = false;
-	std::pair<Grid, int> e;
+	std::list<Grid> path;
 
-	return std::list<Grid>(1, g);
+	while (e->parent != nullptr) {
+		path.push_front(e->grid);
+		e = e->parent;
+	}
+	return path;
 }
 
-void	Solver::_gridMover(eDir dir, Grid &grid)
+std::stack<Grid>	Solver::getSuccessor(Node *curr) const
+{
+	std::stack<Grid> e;
+
+	if (canMove(Up, curr->grid))
+		e.push(move(Up, curr->grid));
+	if (canMove(Right, curr->grid))
+		e.push(move(Right, curr->grid));
+	if (canMove(Down, curr->grid))
+		e.push(move(Down, curr->grid));
+	if (canMove(Left, curr->grid))
+		e.push(move(Left, curr->grid));
+	return e;
+}
+
+bool	in_closed(Grid & g, std::list<Node *> & list)
+{
+	for (auto & e : list)
+		if (g == e->grid)
+			return true;
+	return false;
+}
+
+std::list<Grid>	Solver::solve(Grid g) const
+{
+	auto cmp = [](Node *left, Node *right){return left->cost > right->cost;};
+	std::priority_queue<Node *, std::vector<Node *>, decltype(cmp)> open(cmp);
+	std::list<Node *> closed;
+	bool success = false;
+	Node *start = new Node();
+
+	start->parent = nullptr;
+	start->grid = g;
+	open.push(start);
+
+	while (!open.empty()) {
+		Node *curr = open.top();
+		if (curr->grid == this->_puzzleSolved)
+			return (reconstruct_path(curr));
+		open.pop();
+		closed.push_front(curr);
+		std::stack<Grid> successor = getSuccessor(curr);
+		while (!successor.empty()) {
+			if (!in_closed(successor.top(), closed)) {
+			}
+			successor.pop();
+		}
+	}
+	std::cout << "unSolvable." << std::endl;
+	return std::list<Grid>();
+}
+
+void	Solver::_gridMover(eDir dir, Grid &grid) const
 {
 	const Grid	dir_coor = {{1, 0}, {0, -1}, {-1, 0}, {0, 1}};
 	int			pos = this->_getEmptyPos(grid);
@@ -64,7 +116,7 @@ void	Solver::move(eDir dir)
 	this->_gridMover(dir, this->_puzzle);
 }
 
-Grid	Solver::move(eDir dir, Grid grid)
+Grid	Solver::move(eDir dir, Grid grid) const
 {
 	this->_gridMover(dir, grid);
 	return (grid);
