@@ -12,7 +12,7 @@ namespace Croped_image_generator
 		}
 		return (true);
 	}
-	bool	image_divider(int n_line, std::string image_name)
+	bool	image_divider(int n_line, std::string image_name, int resize)
 	{
 		cv::Mat	image;
 		cv::Mat	resized;
@@ -30,23 +30,23 @@ namespace Croped_image_generator
 			std::cout <<  "Could not open or find the image" << std::endl ;
 			return (false);
 		}
-		cv::resize(image, resized, cv::Size(600, 600));
+		cv::resize(image, resized, cv::Size(resize, resize));
 		while (name < n_line * n_line)
 		{
 			while (++x + tr < n_line && name < n_line * n_line)
-				crop_image_xy(resized, x, y, n_line, 600, ++name);
+				crop_image_xy(resized, x, y, n_line, resize, ++name);
 			++tl;
 			--x;
 			while (++y + br < n_line && name < n_line * n_line)
-				crop_image_xy(resized, x, y, n_line, 600, ++name);
+				crop_image_xy(resized, x, y, n_line, resize, ++name);
 			++tr;
 			--y;
 			while (--x - bl >= 0 && name < n_line * n_line)
-				crop_image_xy(resized, x, y, n_line, 600, ++name);
+				crop_image_xy(resized, x, y, n_line, resize, ++name);
 			++br;
 			++x;
 			while (--y - tl >= 0 && name < n_line * n_line)
-				crop_image_xy(resized, x, y, n_line, 600, ++name);
+				crop_image_xy(resized, x, y, n_line, resize, ++name);
 			++bl;
 			++y;
 		}

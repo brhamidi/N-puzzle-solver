@@ -9,7 +9,7 @@
 namespace Croped_image_generator
 {
 	bool	crop_image_xy(cv::Mat image, int x, int y, int n, int size, int name);
-	bool	image_divider(int n_line, std::string image_name);
+	bool	image_divider(int n_line, std::string image_name, int resize);
 }
 
 #endif
