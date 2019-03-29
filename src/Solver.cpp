@@ -114,14 +114,12 @@ std::list<Grid>	Solver::solve(Grid grid) const
 	start->parent = nullptr;
 	start->grid = grid;
 	open.push(start);
-
+	std::cout << "computing\n";
 	while (!open.empty()) {
 		Node *curr = open.top();
 		if (curr->grid == this->_puzzleSolved) {
 			print(curr->grid);
-			auto soluce = reconstruct_path(curr);
-			std::cout << soluce.size();
-			return (soluce);
+			return reconstruct_path(curr);
 		}
 		open.pop();
 		closed.push_front(curr);
