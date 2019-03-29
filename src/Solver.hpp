@@ -19,6 +19,14 @@ struct Node {
 	int	cost;
 };
 
+class mycomparison
+{
+	public:
+	bool operator() (const Node * lhs, const Node *rhs) const {
+		return (lhs->cost > rhs->cost);
+	}
+};
+
 class Solver
 {
 	private:
@@ -39,10 +47,13 @@ class Solver
 		Solver(size_t n);
 		Solver(std::queue<int>, size_t n);
 
+		bool	_cmp(Node *left, Node *right);
+		bool	add_in_open(Node *node, std::priority_queue<Node *,
+				std::vector<Node *>, mycomparison> open, Node*) const;
 		std::stack<Grid>		getSuccessor(Node *curr) const;
 		std::list<Grid>			reconstruct_path(Node *) const;
 		int				getCoordSolved(int , bool) const;
-		int				g(const Grid & n, const std::queue<Grid> &);
+		int				g(Node *) const;
 		int				h(const Grid & n) const;
 		std::list<Grid >		solve(Grid) const;
 		bool				solved(void) const;

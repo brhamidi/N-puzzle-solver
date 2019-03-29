@@ -11,9 +11,17 @@ bool	Solver::canMove(eDir dir, Grid grid) const
 			&& dir_coor[dir][1] + pos % this->_n >= 0);
 }
 
-int	Solver::g(const Grid & g, const std::queue<Grid> & closed)
+int	Solver::g(Node *curr_node) const
 {
-	return closed.size();
+	int res = 1;
+
+	// TODO save jump state in struct
+	while (curr_node->parent != nullptr)
+	{
+		++res;
+		curr_node = curr_node->parent;
+	}
+	return res;
 }
 
 int	Solver::getCoordSolved(int value, bool b) const
@@ -74,27 +82,61 @@ bool	in_closed(Grid & g, std::list<Node *> & list)
 	return false;
 }
 
-std::list<Grid>	Solver::solve(Grid g) const
+bool Solver::add_in_open(Node *node, std::priority_queue<Node *,
+		std::vector<Node *>, mycomparison> open, Node *parent) const
 {
-	auto cmp = [](Node *left, Node *right){return left->cost > right->cost;};
-	std::priority_queue<Node *, std::vector<Node *>, decltype(cmp)> open(cmp);
+	Node *e;
+
+	while (!open.empty())
+	{
+		e = open.top();
+		if (e->grid == node->grid)
+		{
+			if (e->cost > node->cost)
+			{
+				e->parent = parent;
+				//TODO save h in struct
+				e->cost = h(e->grid) + g(parent);
+			}
+			return false;
+		}
+		open.pop();
+	}
+	return true;
+}
+
+std::list<Grid>	Solver::solve(Grid grid) const
+{
+	std::priority_queue<Node *, std::vector<Node *>, mycomparison> open;
 	std::list<Node *> closed;
-	bool success = false;
 	Node *start = new Node();
 
 	start->parent = nullptr;
-	start->grid = g;
+	start->grid = grid;
 	open.push(start);
 
 	while (!open.empty()) {
 		Node *curr = open.top();
-		if (curr->grid == this->_puzzleSolved)
-			return (reconstruct_path(curr));
+		if (curr->grid == this->_puzzleSolved) {
+			print(curr->grid);
+			auto soluce = reconstruct_path(curr);
+			std::cout << soluce.size();
+			return (soluce);
+		}
 		open.pop();
 		closed.push_front(curr);
 		std::stack<Grid> successor = getSuccessor(curr);
 		while (!successor.empty()) {
-			if (!in_closed(successor.top(), closed)) {
+			Grid curr_g = successor.top();
+			if (!in_closed(curr_g, closed)) {
+				Node *curr_s = new Node();
+				curr_s->cost = h(curr_g) + g(curr);
+				curr_s->grid = curr_g;
+				if (add_in_open(curr_s, open, curr))
+				{
+					curr_s->parent = curr;
+					open.push(curr_s);
+				}
 			}
 			successor.pop();
 		}
@@ -123,11 +165,12 @@ Grid	Solver::move(eDir dir, Grid grid) const
 }
 
 Solver::Solver(size_t n):
-	_n(n), _puzzleSolved(n, std::vector<int>(n)), _puzzle(n, std::vector<int>(n))
+	_n(n), _puzzleSolved(n, std::vector<int>(n)),
+	_puzzle({{2, 9, 1}, {5, 4, 8}, {3, 6, 7}})
 
 {
 	this->_generateSolved();
-	this->_puzzle = _generate();
+//	this->_puzzle = _generate();
 }
 
 Solver::~Solver(void) {}
