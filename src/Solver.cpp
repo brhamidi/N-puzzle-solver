@@ -11,9 +11,17 @@ bool	Solver::canMove(eDir dir, Grid grid) const
 			&& dir_coor[dir][1] + pos % this->_n >= 0);
 }
 
-int	Solver::g(const Grid & g, const std::queue<Grid> & closed)
+int	Solver::g(Node *curr_node) const
 {
-	return closed.size();
+	int res = 1;
+
+	// TODO save jump state in struct
+	while (curr_node->parent != nullptr)
+	{
+		++res;
+		curr_node = curr_node->parent;
+	}
+	return res;
 }
 
 int	Solver::getCoordSolved(int value, bool b) const
@@ -24,7 +32,7 @@ int	Solver::getCoordSolved(int value, bool b) const
 				return b ? y : x;
 		}
 	}
-	return (-1);
+	return (0);
 }
 
 int	Solver::h(const Grid & g) const
@@ -40,18 +48,104 @@ int	Solver::h(const Grid & g) const
 	return res;
 }
 
-std::list<Grid>	Solver::solve(Grid g) const
+std::list<Grid> Solver::reconstruct_path(Node *e) const
 {
-	auto cmp = [](std::pair<Grid, int> left, std::pair<Grid, int> right){return left.second > right.second;};
-	std::priority_queue<std::pair<Grid, int>, std::vector<std::pair<Grid, int>>, decltype(cmp)> open(cmp);
-	std::queue<Grid> closed;
-	bool success = false;
-	std::pair<Grid, int> e;
+	std::list<Grid> path;
 
-	return std::list<Grid>(1, g);
+	while (e->parent != nullptr) {
+		path.push_front(e->grid);
+		e = e->parent;
+	}
+	return path;
 }
 
-void	Solver::_gridMover(eDir dir, Grid &grid)
+std::stack<Grid>	Solver::getSuccessor(Node *curr) const
+{
+	std::stack<Grid> e;
+
+	if (canMove(Up, curr->grid))
+		e.push(move(Up, curr->grid));
+	if (canMove(Right, curr->grid))
+		e.push(move(Right, curr->grid));
+	if (canMove(Down, curr->grid))
+		e.push(move(Down, curr->grid));
+	if (canMove(Left, curr->grid))
+		e.push(move(Left, curr->grid));
+	return e;
+}
+
+bool	in_closed(Grid & g, std::list<Node *> & list)
+{
+	for (auto & e : list)
+		if (g == e->grid)
+			return true;
+	return false;
+}
+
+bool Solver::add_in_open(Node *node, std::priority_queue<Node *,
+		std::vector<Node *>, mycomparison> open, Node *parent) const
+{
+	Node *e;
+
+	while (!open.empty())
+	{
+		e = open.top();
+		if (e->grid == node->grid)
+		{
+			if (e->cost > node->cost)
+			{
+				e->parent = parent;
+				//TODO save h in struct
+				e->cost = h(e->grid) + g(parent);
+			}
+			return false;
+		}
+		open.pop();
+	}
+	return true;
+}
+
+std::list<Grid>	Solver::solve(Grid grid) const
+{
+	std::priority_queue<Node *, std::vector<Node *>, mycomparison> open;
+	std::list<Node *> closed;
+	Node *start = new Node();
+
+	start->parent = nullptr;
+	start->grid = grid;
+	open.push(start);
+
+	while (!open.empty()) {
+		Node *curr = open.top();
+		if (curr->grid == this->_puzzleSolved) {
+			print(curr->grid);
+			auto soluce = reconstruct_path(curr);
+			std::cout << soluce.size();
+			return (soluce);
+		}
+		open.pop();
+		closed.push_front(curr);
+		std::stack<Grid> successor = getSuccessor(curr);
+		while (!successor.empty()) {
+			Grid curr_g = successor.top();
+			if (!in_closed(curr_g, closed)) {
+				Node *curr_s = new Node();
+				curr_s->cost = h(curr_g) + g(curr);
+				curr_s->grid = curr_g;
+				if (add_in_open(curr_s, open, curr))
+				{
+					curr_s->parent = curr;
+					open.push(curr_s);
+				}
+			}
+			successor.pop();
+		}
+	}
+	std::cout << "unSolvable." << std::endl;
+	return std::list<Grid>();
+}
+
+void	Solver::_gridMover(eDir dir, Grid &grid) const
 {
 	const Grid	dir_coor = {{1, 0}, {0, -1}, {-1, 0}, {0, 1}};
 	int			pos = this->_getEmptyPos(grid);
@@ -64,18 +158,19 @@ void	Solver::move(eDir dir)
 	this->_gridMover(dir, this->_puzzle);
 }
 
-Grid	Solver::move(eDir dir, Grid grid)
+Grid	Solver::move(eDir dir, Grid grid) const
 {
 	this->_gridMover(dir, grid);
 	return (grid);
 }
 
 Solver::Solver(size_t n):
-	_n(n), _puzzleSolved(n, std::vector<int>(n)), _puzzle(n, std::vector<int>(n))
+	_n(n), _puzzleSolved(n, std::vector<int>(n)),
+	_puzzle({{2, 9, 1}, {5, 4, 8}, {3, 6, 7}})
 
 {
 	this->_generateSolved();
-	this->_puzzle = _generate();
+//	this->_puzzle = _generate();
 }
 
 Solver::~Solver(void) {}
