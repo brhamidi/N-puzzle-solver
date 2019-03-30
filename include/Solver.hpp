@@ -10,6 +10,7 @@
 # include <random>
 # include <algorithm>
 # include <cmath>
+# include <unordered_set>
 
 # include "Npuzzle.hpp"
 
@@ -17,14 +18,26 @@ struct Node {
 	Node 	*parent;
 	Grid	grid;
 	int	cost;
+	int	h;
+	int	g;
+	bool operator==(const Node &other) const {
+		return (grid == other.grid);
+	}
 };
+
+class NodeHash { 
+	public: 
+		size_t operator()(const Node& t) const { 
+			return t.cost + (long)t.parent;
+		} 
+}; 
 
 class mycomparison
 {
 	public:
-	bool operator() (const Node * lhs, const Node *rhs) const {
-		return (lhs->cost > rhs->cost);
-	}
+		bool operator() (const Node * lhs, const Node *rhs) const {
+			return (lhs->cost > rhs->cost);
+		}
 };
 
 class Solver
