@@ -266,3 +266,69 @@ bool	Solver::solved(Grid grid) const
 {
 	return (grid == this->_puzzleSolved);
 }
+
+int		Solver::_countInversion(std::vector<int> arr, std::vector<int> arrSolved) const
+{
+	int inv_count = 0; 
+	for (int i = 0; i < this->_n * this->_n - 1; i++) 
+	{ 
+		for (int j = i + 1; j < this->_n * this->_n; j++) 
+		{ 
+			if (arr[j] && arr[i])
+			{
+				for (auto solved : arrSolved)
+				{
+					if (solved == arr[i])
+						break ;
+					else if (solved == arr[j])
+					{
+						inv_count++;
+						break ;
+					}
+				}
+			}
+		} 
+	}
+	return inv_count; 
+}
+
+int		Solver::_countEmptyXLength(std::vector<int> arr, std::vector<int> arrSolved) const
+{
+	int i = 0;
+	for (auto n : arr)
+	{
+		if (n == 0)
+			break ;
+		i++;
+	}
+	int s = 0;
+	for (auto n : arrSolved)
+	{
+		if (n == 0)
+			break ;
+		s++;
+	}
+	return (s / this->_n + 1 - i / this->_n);
+}
+
+bool	Solver::isSolvable(const Grid grid) const
+{
+	std::vector<int> arr(this->_n * this->_n, 0);
+	std::vector<int> arrSolved(this->_n * this->_n, 0);
+
+	for(int y = 0; y < this->_n; y++)
+		for (int x = 0; x < this->_n; x++)
+		{
+			arr[y * this->_n + x] = grid[y][x];
+			arrSolved[y * this->_n + x] = this->_puzzleSolved[y][x];
+			if (arr[y * this->_n + x] == this->_n * this->_n)
+				arr[y * this->_n + x] = 0;
+			if (arrSolved[y * this->_n + x] == this->_n * this->_n)
+				arrSolved[y * this->_n + x] = 0;
+		}
+	int inversion = this->_countInversion(arr, arrSolved);
+	if ((this->_n % 2 && !(inversion % 2)) || (!(this->_n % 2) && ((inversion + this->_countEmptyXLength(arr, arrSolved)) % 2) ))
+		return true;
+	else
+		return false;
+}

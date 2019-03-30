@@ -38,10 +38,13 @@ class Solver
 		int					_getEmptyPos(Grid) const;
 		Grid				_generate(void) const;
 		void				_gridMover(eDir dir, Grid &grid) const;
+		int					_countInversion(std::vector<int>, std::vector<int>) const;
+		int					_countEmptyXLength(std::vector<int>, std::vector<int>) const;
 
 		int		_n;
 		Grid	_puzzle;
 		Grid	_puzzleSolved;
+
 	public:
 		~Solver(void);
 		Solver(size_t n);
@@ -66,6 +69,8 @@ class Solver
 		int				getSize(void) const;
 		void				print(void) const;
 		Grid 				getCopyPuzzle(void) const;
+
+		bool				isSolvable(const Grid ) const;
 
 };
 

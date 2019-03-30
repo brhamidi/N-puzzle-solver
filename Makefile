@@ -1,14 +1,14 @@
 CXX		= clang++
 NAME		= npuzzle
-CXXFLAGS	= -Wall -Wextra -Werror -O2 -std=c++17
-CXXFLAGS	+= -lopencv_core -lopencv_imgcodecs -lopencv_highgui -lopencv_imgproc
+CXXFLAGS	= -Wall -Wextra -Werror -O2 -std=c++11
+CXXFLAGS	+= -L/Users/msrun/.brew/lib -lopencv_core -lopencv_imgcodecs -lopencv_highgui -lopencv_imgproc
 CXXFLAGS	+= -lsfml-system -lsfml-window -lsfml-graphics
 
 SRC_PATH	= src/
 
 INCLUDES	= -I include/
 INCLUDES	+= -I /usr/include/opencv4
-INCLUDES	+= -I ~/brew/include/opencv4
+INCLUDES	+= -I ~/.brew/include/opencv4 -I ~/.brew/include/
 
 OBJ		= main.o			\
 		  Croped_image_generator.o	\
@@ -23,7 +23,7 @@ $(NAME): $(OBJS)
 	$(CXX) $(CXXFLAGS) $(OBJS) -o $@
 
 $(SRC_PATH)%.o: $(SRC_PATH)%.cpp Makefile
-	$(CXX) $(INCLUDES) -c $< -o $@
+	$(CXX) $(INCLUDES) -c $< -o $@ -std=c++11
 
 clean:
 	rm -f $(OBJS)
