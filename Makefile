@@ -1,6 +1,6 @@
 CXX		= clang++
 NAME		= npuzzle
-CXXFLAGS	= -Wall -Wextra -Werror -O2 -std=c++17
+CXXFLAGS	= -Wall -Wextra -Werror -std=c++17 -O2
 CXXFLAGS	+= -lopencv_core -lopencv_imgcodecs -lopencv_highgui -lopencv_imgproc
 CXXFLAGS	+= -lsfml-system -lsfml-window -lsfml-graphics
 
@@ -23,7 +23,7 @@ $(NAME): $(OBJS)
 	$(CXX) $(CXXFLAGS) $(OBJS) -o $@
 
 $(SRC_PATH)%.o: $(SRC_PATH)%.cpp Makefile
-	$(CXX) $(INCLUDES) -c $< -o $@
+	$(CXX) $(INCLUDES) -c $< -o $@ -O2
 
 clean:
 	rm -f $(OBJS)

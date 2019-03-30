@@ -13,15 +13,7 @@ bool	Solver::canMove(eDir dir, Grid grid) const
 
 int	Solver::g(Node *curr_node) const
 {
-	int res = 1;
-
-	// TODO save jump state in struct
-	while (curr_node->parent != nullptr)
-	{
-		++res;
-		curr_node = curr_node->parent;
-	}
-	return res;
+	return curr_node->g + 1;
 }
 
 int	Solver::getCoordSolved(int value, bool b) const
@@ -74,14 +66,6 @@ std::stack<Grid>	Solver::getSuccessor(Node *curr) const
 	return e;
 }
 
-bool	in_closed(Grid & g, std::list<Node *> & list)
-{
-	for (auto & e : list)
-		if (g == e->grid)
-			return true;
-	return false;
-}
-
 bool Solver::add_in_open(Node *node, std::priority_queue<Node *,
 		std::vector<Node *>, mycomparison> open, Node *parent) const
 {
@@ -95,8 +79,8 @@ bool Solver::add_in_open(Node *node, std::priority_queue<Node *,
 			if (e->cost > node->cost)
 			{
 				e->parent = parent;
-				//TODO save h in struct
-				e->cost = h(e->grid) + g(parent);
+				e->g = g(parent);
+				e->cost = e->h + e->g;
 			}
 			return false;
 		}
@@ -108,7 +92,7 @@ bool Solver::add_in_open(Node *node, std::priority_queue<Node *,
 std::list<Grid>	Solver::solve(Grid grid) const
 {
 	std::priority_queue<Node *, std::vector<Node *>, mycomparison> open;
-	std::list<Node *> closed;
+	std::unordered_set<Node, NodeHash> closed;
 	Node *start = new Node();
 
 	start->parent = nullptr;
@@ -122,14 +106,16 @@ std::list<Grid>	Solver::solve(Grid grid) const
 			return reconstruct_path(curr);
 		}
 		open.pop();
-		closed.push_front(curr);
+		closed.insert(*curr);
 		std::stack<Grid> successor = getSuccessor(curr);
 		while (!successor.empty()) {
+			Node *curr_s = new Node();
 			Grid curr_g = successor.top();
-			if (!in_closed(curr_g, closed)) {
-				Node *curr_s = new Node();
+			curr_s->grid = curr_g;
+			if (closed.count(*curr_s) == 0) {
+				curr_s->h = h(curr_g);
+				curr_s->g = g(curr);
 				curr_s->cost = h(curr_g) + g(curr);
-				curr_s->grid = curr_g;
 				if (add_in_open(curr_s, open, curr))
 				{
 					curr_s->parent = curr;
@@ -163,12 +149,11 @@ Grid	Solver::move(eDir dir, Grid grid) const
 }
 
 Solver::Solver(size_t n):
-	_n(n), _puzzleSolved(n, std::vector<int>(n)),
-	_puzzle({{2, 9, 1}, {5, 4, 8}, {3, 6, 7}})
+	_n(n), _puzzleSolved(n, std::vector<int>(n))
 
 {
 	this->_generateSolved();
-//	this->_puzzle = _generate();
+	this->_puzzle = _generate();
 }
 
 Solver::~Solver(void) {}
