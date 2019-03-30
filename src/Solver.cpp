@@ -11,35 +11,6 @@ bool	Solver::canMove(eDir dir, Grid grid) const
 			&& dir_coor[dir][1] + pos % this->_n >= 0);
 }
 
-int	Solver::g(Node *curr_node) const
-{
-	return curr_node->g + 1;
-}
-
-int	Solver::getCoordSolved(int value, bool b) const
-{
-	for (int y = 0; y < this->_n; ++y) {
-		for (int x = 0; x < this->_n; ++x) {
-			if (value == this->_puzzleSolved[y][x])
-				return b ? y : x;
-		}
-	}
-	return (0);
-}
-
-int	Solver::h(const Grid & g) const
-{
-	int res = 0;
-
-	for (int y = 0; y < this->_n; ++y) {
-		for (int x = 0; x < this->_n; ++x) {
-			res += abs(y - getCoordSolved(g[y][x], true))
-				+ abs(x - getCoordSolved(g[y][x], false));
-		}
-	}
-	return res;
-}
-
 std::list<Grid> Solver::reconstruct_path(Node *e) const
 {
 	std::list<Grid> path;
@@ -87,6 +58,35 @@ bool Solver::add_in_open(Node *node, std::priority_queue<Node *,
 		open.pop();
 	}
 	return true;
+}
+
+int	Solver::g(Node *curr_node) const
+{
+	return curr_node->g + 1;
+}
+
+int	Solver::getCoordSolved(int value, bool b) const
+{
+	for (int y = 0; y < this->_n; ++y) {
+		for (int x = 0; x < this->_n; ++x) {
+			if (value == this->_puzzleSolved[y][x])
+				return b ? y : x;
+		}
+	}
+	return (0);
+}
+
+int	Solver::h(const Grid & g) const
+{
+	int res = 0;
+
+	for (int y = 0; y < this->_n; ++y) {
+		for (int x = 0; x < this->_n; ++x) {
+			res += abs(y - getCoordSolved(g[y][x], true))
+				+ abs(x - getCoordSolved(g[y][x], false));
+		}
+	}
+	return res;
 }
 
 std::list<Grid>	Solver::solve(Grid grid) const
