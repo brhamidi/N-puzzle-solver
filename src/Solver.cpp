@@ -50,8 +50,9 @@ bool Solver::add_in_open(Node *node, std::priority_queue<Node *,
 			if (e->cost > node->cost)
 			{
 				e->parent = parent;
-				e->g = g(parent);
-				e->cost = e->h + e->g;
+				e->g = node->g;
+				e->h = node->h;
+				e->cost = node->cost;
 			}
 			return false;
 		}
