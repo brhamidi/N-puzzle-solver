@@ -1,6 +1,6 @@
 CXX		= clang++
 NAME		= npuzzle
-CXXFLAGS	= -Wall -Wextra -Werror -O2 -std=c++11 -O2
+CXXFLAGS	= -Wall -Wextra -Werror -O2 -std=c++14 -O2
 CXXFLAGS	+= -L/Users/msrun/.brew/lib -lopencv_core -lopencv_imgcodecs -lopencv_highgui -lopencv_imgproc
 CXXFLAGS	+= -lsfml-system -lsfml-window -lsfml-graphics
 
@@ -23,7 +23,7 @@ $(NAME): $(OBJS)
 	$(CXX) $(CXXFLAGS) $(OBJS) -o $@
 
 $(SRC_PATH)%.o: $(SRC_PATH)%.cpp Makefile
-	$(CXX) $(INCLUDES) -c $< -o $@ -O2 -std=c++11
+	$(CXX) $(INCLUDES) -c $< -o $@ -O2 -std=c++14
 
 clean:
 	rm -f $(OBJS)

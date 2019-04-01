@@ -1,5 +1,9 @@
 #include "Solver.hpp"
 
+PNode::PNode(Node *n) : node(n)
+{
+}
+
 bool	Solver::canMove(eDir dir, Grid grid) const
 {
 	const Grid	dir_coor = {{1, 0}, {0, -1}, {-1, 0}, {0, 1}};
@@ -37,28 +41,36 @@ std::stack<Grid>	Solver::getSuccessor(Node *curr) const
 	return e;
 }
 
+std::string Solver::_gridToString(const Grid grid) const
+{
+	std::string stringGrid;
+
+	for (auto line: grid)
+		for (auto n: line)
+			stringGrid += std::to_string(n);
+	return stringGrid;
+}
+
 bool Solver::add_in_open(Node *node, std::priority_queue<Node *,
-		std::vector<Node *>, mycomparison> open, Node *parent) const
+		std::vector<Node *>, mycomparison> open, Node *parent, std::unordered_map<std::string, PNode> &open_map) const
 {
 	Node *e;
+	int i = 0;
+	PNode pnode(node);
 
-	while (!open.empty())
+	std::string stringGrid = this->_gridToString(node->grid);
+	auto got = open_map.find(stringGrid);
+	if (got == open_map.end())
 	{
-		e = open.top();
-		if (e->grid == node->grid)
-		{
-			if (e->cost > node->cost)
-			{
-				e->parent = parent;
-				e->g = node->g;
-				e->h = node->h;
-				e->cost = node->cost;
-			}
-			return false;
-		}
-		open.pop();
+		open_map.insert(std::pair<std::string, PNode>(stringGrid, pnode));
+		return true;
 	}
-	return true;
+	if (got->second.node->cost > node->cost)
+	{
+		got->second.node->parent = parent;
+		got->second.node->cost = node->cost;
+	}
+	return false;
 }
 
 int	Solver::g(Node *curr_node) const
@@ -66,6 +78,7 @@ int	Solver::g(Node *curr_node) const
 	return curr_node->g + 1;
 }
 
+/*
 int	Solver::getCoordSolved(int value, bool b) const
 {
 	for (int y = 0; y < this->_n; ++y) {
@@ -75,6 +88,14 @@ int	Solver::getCoordSolved(int value, bool b) const
 		}
 	}
 	return (0);
+}
+*/
+
+int	Solver::getCoordSolved(int value, bool b) const
+{
+	auto pos = this->_testMap.find(value);
+
+	return b ? pos->second / this->_n : pos->second % this->_n;
 }
 
 int	Solver::getLinearConflict(const Grid & g) const
@@ -137,6 +158,7 @@ int	Solver::h(const Grid & g) const
 std::list<Grid>	Solver::solve(Grid grid) const
 {
 	std::priority_queue<Node *, std::vector<Node *>, mycomparison> open;
+	std::unordered_map<std::string, PNode> open_map;
 	std::unordered_set<Node, NodeHash> closed;
 	Node *start = new Node();
 
@@ -160,8 +182,8 @@ std::list<Grid>	Solver::solve(Grid grid) const
 			if (closed.count(*curr_s) == 0) {
 				curr_s->h = h(curr_g);
 				curr_s->g = g(curr);
-				curr_s->cost = h(curr_g) + g(curr);
-				if (add_in_open(curr_s, open, curr))
+				curr_s->cost = curr_s->h + curr_s->g;
+				if (add_in_open(curr_s, open, curr, open_map))
 				{
 					curr_s->parent = curr;
 					open.push(curr_s);
@@ -199,6 +221,11 @@ Solver::Solver(size_t n):
 {
 	this->_generateSolved();
 	this->_puzzle = _generate();
+	for (int y = 0; y < this->_n; ++y) {
+		for (int x = 0; x < this->_n; ++x) {
+			this->_testMap.insert(std::pair<int, int>(this->_puzzleSolved[y][x], y * this->_n + x));
+		}
+	}
 }
 
 Solver::~Solver(void) {}

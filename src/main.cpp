@@ -3,7 +3,7 @@
 # include "Graphic_displayer.hpp"
 
 #include <string.h>
-# define SIZE 3
+# define SIZE 4
 Grid	getGridFromIn(void)
 {
 	    std::string comment;
