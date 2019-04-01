@@ -99,17 +99,61 @@ int	Solver::getCoordSolved(int value, bool b) const
 	return b ? pos->second / this->_n : pos->second % this->_n;
 }
 
+int	Solver::getLinearConflict(const Grid & g) const
+{
+	int	res = 0;
+	int 	f_y, f_x, f1_y, f1_x; // solved grid position
+
+	for (int y = 0; y < this->_n; ++y) {
+		for (int x = 1; x < this->_n; ++x) {
+			if (g[y][0] != this->_n * this->_n &&
+					g[y][x] != this->_n * this->_n) {
+				f_y = getCoordSolved(g[y][0], true);
+				f1_y = getCoordSolved(g[y][x], true);
+				if (f_y == f1_y) {
+					f_x = getCoordSolved(g[y][0], false);
+					f1_x = getCoordSolved(g[y][x], false);
+					if (x < f_x && (f1_x < f_x && f1_x > x))
+						res += 2;
+					if (x > f_x && (f1_x > f_x && f1_x < x))
+						res += 2;
+				}
+			}
+		}
+	}
+	for (int x = 0; x < this->_n; ++x) {
+		for (int y = 1; y < this->_n; ++y) {
+			if (g[0][x] != this->_n * this->_n &&
+					g[y][x] != this->_n * this->_n) {
+				f_x = getCoordSolved(g[0][x], false);
+				f1_x = getCoordSolved(g[y][x], false);
+				if (f_x == f1_x) {
+					f_y = getCoordSolved(g[0][x], true);
+					f1_y = getCoordSolved(g[y][x], true);
+					if (y < f_y && (f1_y < f_y && f1_y > y))
+						res += 2;
+					if (y > f_y && (f1_y > f_y && f1_y < y))
+						res += 2;
+				}
+			}
+		}
+	}
+	return res;
+}
+
 int	Solver::h(const Grid & g) const
 {
 	int res = 0;
 
 	for (int y = 0; y < this->_n; ++y) {
 		for (int x = 0; x < this->_n; ++x) {
-			res += abs(y - getCoordSolved(g[y][x], true))
-				+ abs(x - getCoordSolved(g[y][x], false));
+			if (g[y][x] != this->_n * this->_n)
+				res += abs(y - getCoordSolved(g[y][x], true))
+					+ abs(x - getCoordSolved(g[y][x], false));
 		}
 	}
-	return res;
+	//return res;
+	return res + (2 * getLinearConflict(g));
 }
 
 std::list<Grid>	Solver::solve(Grid grid) const

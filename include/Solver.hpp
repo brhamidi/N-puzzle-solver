@@ -72,7 +72,7 @@ class Solver
 		Solver(size_t n);
 		Solver(std::queue<int>, size_t n);
 
-		bool	_cmp(Node *left, Node *right);
+		int	getLinearConflict(const Grid & g) const;
 		bool	add_in_open(Node *node, std::priority_queue<Node *,
 				std::vector<Node *>, mycomparison> open, Node*,
 				std::unordered_map<std::string, PNode> &open_map) const;
