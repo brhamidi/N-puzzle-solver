@@ -35,5 +35,5 @@ int main()
 
 	Grid g = getGridFromIn();
 	x.print(g);
-	x.solve( g );
+	x.solve(g);
 }
