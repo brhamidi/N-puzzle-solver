@@ -5,12 +5,14 @@
 # include <queue>
 # include <stack>
 # include <list>
+# include <map>
 # include "Npuzzle.hpp"
 # include <iostream>
 # include <random>
 # include <algorithm>
 # include <cmath>
 # include <unordered_set>
+# include <unordered_map>
 
 # include "Npuzzle.hpp"
 
@@ -23,6 +25,11 @@ struct Node {
 	bool operator==(const Node &other) const {
 		return (grid == other.grid);
 	}
+};
+
+struct PNode {
+	Node	*node;
+	PNode(Node *);
 };
 
 class NodeHash { 
@@ -53,10 +60,12 @@ class Solver
 		void				_gridMover(eDir dir, Grid &grid) const;
 		int					_countInversion(std::vector<int>, std::vector<int>) const;
 		int					_countEmptyXLength(std::vector<int>, std::vector<int>) const;
+		std::string			_gridToString(const Grid grid) const;
 
 		int		_n;
 		Grid	_puzzle;
 		Grid	_puzzleSolved;
+		std::map<int, int>	_testMap;
 
 	public:
 		~Solver(void);
@@ -65,7 +74,8 @@ class Solver
 
 		bool	_cmp(Node *left, Node *right);
 		bool	add_in_open(Node *node, std::priority_queue<Node *,
-				std::vector<Node *>, mycomparison> open, Node*) const;
+				std::vector<Node *>, mycomparison> open, Node*,
+				std::unordered_map<std::string, PNode> &open_map) const;
 		std::stack<Grid>		getSuccessor(Node *curr) const;
 		std::list<Grid>			reconstruct_path(Node *) const;
 		int				getCoordSolved(int , bool) const;
