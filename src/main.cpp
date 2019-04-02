@@ -2,7 +2,6 @@
 # include "Npuzzle.hpp"
 # include "Graphic_displayer.hpp"
 
-#include <string.h>
 # define SIZE 4
 Grid	getGridFromIn(void)
 {
@@ -29,11 +28,15 @@ Grid	getGridFromIn(void)
 	    return e;
 }
 
-int main()
+int main(int ac, char **av)
 {
-	const Solver x(SIZE);
+	uint8_t		opt;
+	const int	i = get_opt(&opt, ac, av);
 
-	Grid g = getGridFromIn();
-	x.print(g);
-	x.solve(g);
+	if (ac - i == 0)
+		std::cout << "no file" << std::endl;
+	else if  (ac - i == 1)
+		std::cout << "one file" << std::endl;
+	else
+		std::cout << "usage: npuzzle [-gml] [file]" << std::endl;
 }

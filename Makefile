@@ -13,6 +13,7 @@ INCLUDES	+= -I ~/.brew/include/opencv4 -I ~/.brew/include/
 OBJ		= main.o			\
 		  Croped_image_generator.o	\
 		  Graphic_displayer.o		\
+		  get_opt.o			\
 		  Solver.o
 
 OBJS=$(addprefix $(SRC_PATH), $(OBJ))
