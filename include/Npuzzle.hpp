@@ -4,6 +4,8 @@
 # include <vector>
 # include <string.h>
 
+# define SIZE	3
+
 typedef std::vector<std::vector<int> > Grid;
 
 # define CHARS_OPT	"gml"
