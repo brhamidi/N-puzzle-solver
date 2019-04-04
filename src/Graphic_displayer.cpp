@@ -18,20 +18,18 @@ bool	Graphic_displayer::_fill_textures_sprites_lists(int size)
 Graphic_displayer::Graphic_displayer(int size, std::string name): _size(size), _windowSize(600)
 {
 	if (!Croped_image_generator::image_divider(size, name, this->_windowSize))
-	{
-		std::cout << "Error while creating croped image, please make sure 'images' folder and that <0 - (size * size)>.jpg exist/got permissions\n";
-		return ;
-	}
+		throw std::runtime_error(std::string("Error while creating croped image, please make sure 'images' folder and that <0 - (size * size)>.jpg exist/got permissions"));
 	if (!_fill_textures_sprites_lists(size))
-	{
-		std::cout << "Error while loading texture, please make sure 'images' folder and that <0 - size * size>.jpg exist/got permissions\n";
-		return ;
-	}
-	if (!(this->_window = new sf::RenderWindow(sf::VideoMode(this->_windowSize, this->_windowSize), "N puzzle")))
-	{
-		std::cout << "Error while loading SFML window\n";
-		return ;
-	}
+		throw std::runtime_error(std::string("Error while loading texture, please make sure 'images' folder and that <0 - size * size>.jpg exist/got permissions"));
+	if (!(this->_window = new sf::RenderWindow(sf::VideoMode(this->_windowSize + 600, this->_windowSize), "N puzzle")))
+		throw std::runtime_error(std::string("Error while loading SFML window"));
+	if (!(this->_font.loadFromFile("font.ttf")))
+		throw std::runtime_error(std::string("Error while loading font for SFML, please make sure font exist/got permissions"));
+	this->_text.setFont(this->_font);
+	this->_text.setString(" Press:\n\tArrow key to move\n\tEscape to exit\n\tEnter to resolve\n\tSpace to pause/unpause\n\t< to slow\n\t> to accelarate");
+	this->_text.setCharacterSize(40);
+	this->_text.setPosition(sf::Vector2f(600, 0));
+	this->_text.setFillColor(sf::Color::White);
 	this->_dir[sf::Keyboard::Left] = eDir::Left;
 	this->_dir[sf::Keyboard::Right] = eDir::Right;
 	this->_dir[sf::Keyboard::Up] = eDir::Up;
@@ -51,9 +49,9 @@ Graphic_displayer::~Graphic_displayer(void)
 	delete this->_window;
 }
 
-bool	Graphic_displayer::list_displayer(const Grid &grid) const
+bool	Graphic_displayer::list_displayer(const Grid &grid, int moves)
 {
-	int	i = 0;
+	int			i = 0;
 	
 	if (this->_sprites_list.size() != this->_size * this->_size)
 	{
@@ -79,6 +77,11 @@ bool	Graphic_displayer::list_displayer(const Grid &grid) const
 			}
 			++i;
 		}
+	if (moves < 0)
+		this->_text.setString("PUZZLE SOLVED\n\n Moves: " + std::to_string(moves * (-1)));
+	else
+		this->_text.setString(" Press:\n\tArrow key to move\n\tEscape to exit\n\tEnter to resolve\n\tSpace to pause/unpause\n\t< to slow\n\t> to accelarate\n\n Moves: " + std::to_string(moves));
+	this->_window->draw(this->_text);
 	this->_window->display();
 	return true;
 }
@@ -122,11 +125,12 @@ std::pair<int, int>	Graphic_displayer::_getDiff(Grid grid1, Grid grid2) const
 	return (std::make_pair(0, 0));
 }
 
-bool	Graphic_displayer::_displayTransition(Grid grid, std::pair<int, int> pos, int &timer) const
+bool	Graphic_displayer::_displayTransition(Grid grid, std::pair<int, int> pos, int &timer)
 {
 	int i = 0;
 	int dirX = pos.first % this->_size - pos.second % this->_size;
 	int dirY = pos.first / this->_size - pos.second / this->_size;
+	static int	moves = 0;
 
 	int transitionFrames = 40;
 	while (++i <= transitionFrames)
@@ -156,9 +160,14 @@ bool	Graphic_displayer::_displayTransition(Grid grid, std::pair<int, int> pos, i
 
 		this->_sprites_list[grid[pos.second / this->_size][pos.second % this->_size] - 1]
 			->setPosition(
-					this->_windowSize / this->_size * (pos.second % this->_size) + dirX * i * this->_windowSize / this->_size / transitionFrames,
-					this->_windowSize / this->_size * (pos.second / this->_size) + dirY * i * this->_windowSize / this->_size / transitionFrames);
+			this->_windowSize / this->_size * (pos.second % this->_size) + dirX * i * this->_windowSize / this->_size / transitionFrames,
+			this->_windowSize / this->_size * (pos.second / this->_size) + dirY * i * this->_windowSize / this->_size / transitionFrames);
 		this->_window->draw(*this->_sprites_list[grid[pos.second / this->_size][pos.second % this->_size] - 1]);
+
+		if (i + 1 == transitionFrames)
+			++moves;
+		this->_text.setString(" Press:\n\tArrow key to move\n\tEscape to exit\n\tEnter to resolve\n\tSpace to pause/unpause\n\t< to slow\n\t> to accelarate\n\n Moves: " + std::to_string(moves));
+		this->_window->draw(this->_text);
 		this->_window->display();
 		usleep(timer);
 	}
@@ -176,11 +185,11 @@ bool	Graphic_displayer::_readEvent(int &timer) const
 		{
 			switch(event.key.code)
 			{
-				case sf::Keyboard::Add :
+				case sf::Keyboard::Period:
 					if (timer > 0)
 						timer -= 10000;
 					break;
-				case sf::Keyboard::Subtract:
+				case sf::Keyboard::Comma:
 					if (timer < 100000)
 						timer += 10000;
 					break;
@@ -197,21 +206,21 @@ bool	Graphic_displayer::_readEvent(int &timer) const
 	return true;
 }
 
-void	Graphic_displayer::displayGridList(std::list<Grid> gridList) const
+eDir	Graphic_displayer::displayGridList(std::list<Grid> gridList)
 {
 	Grid				previous = gridList.front();
 	std::pair<int, int>	pair;
 	int					timer = 10000;
 
 	if (!(this->_readEvent(timer)))
-		return;
+		return eDir::Exit;
 	for(auto grid : gridList)
 	{
 		pair = this->_getDiff(previous, grid);
 		if (pair.first != pair.second)
 			if (!this->_displayTransition(previous, pair, timer))
-				return ;
-		
+				return eDir::Exit;
 		previous = grid;
 	}
+	return eDir::Resolve;
 }

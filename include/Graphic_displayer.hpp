@@ -18,9 +18,9 @@ class Graphic_displayer
 	public:
 		Graphic_displayer(int size, std::string name);
 		~Graphic_displayer(void);
-		bool	list_displayer(const Grid&) const;
+		bool	list_displayer(const Grid&, int);
 		eDir	getEvent(void);
-		void	displayGridList(std::list<Grid>) const;
+		eDir	displayGridList(std::list<Grid>);
 
 	private:
 		int							_windowSize;
@@ -28,10 +28,12 @@ class Graphic_displayer
 		sf::RenderWindow			*_window;
 		std::vector<sf::Texture *>	_textures_list;
 		std::vector<sf::Sprite *>	_sprites_list;
+		sf::Font					_font;
+		sf::Text					_text;
 		std::map<int, eDir > 		 _dir;
 
 		bool						_fill_textures_sprites_lists(int size);
-		bool						_displayTransition(Grid, std::pair<int, int>, int&) const;
+		bool						_displayTransition(Grid, std::pair<int, int>, int&);
 		std::pair<int, int>			_getDiff(Grid, Grid) const;
 		bool						_readEvent(int &) const;
 };

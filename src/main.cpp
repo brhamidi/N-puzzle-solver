@@ -84,30 +84,36 @@ Grid	getGridFromFile(std::string filename)
 
 void	graphicMode(Solver &solver)
 {
-	Graphic_displayer	displayer = Graphic_displayer(solver.getSize(), "example/taq3");
-	eDir e;
-	displayer.list_displayer(solver.getPuzzle());
+	Graphic_displayer	displayer = Graphic_displayer(solver.getSize(), "nPuzzleImage");
+	eDir				e;
+	int					moves = 0;
+	displayer.list_displayer(solver.getPuzzle(), moves);
 
 	while ((e = displayer.getEvent()) != eDir::Exit && e != eDir::Error)
 	{
-		if (solver.solved(solver.getPuzzle()))
-		{
-			std::cout << "SOLVED\n";
-			break;
-		}
 		if (e != eDir::Resolve)
 		{
 			if (solver.canMove(e, solver.getPuzzle()))
+			{
 				solver.move(e);
+				++moves;
+			}
 		}
 		else
 		{
-			displayer.displayGridList(solver.solve(solver.getPuzzle()));
+			e = displayer.displayGridList(solver.solve(solver.getPuzzle()));
 			break;
 		}
-		displayer.list_displayer(solver.getPuzzle());
+		displayer.list_displayer(solver.getPuzzle(), moves);
+		if (solver.solved(solver.getPuzzle()))
+		{
+			std::cout << "SOLVED\n";
+			displayer.list_displayer(solver.getPuzzle(), moves * (-1));
+			break;
+		}
 	}
-	while (displayer.getEvent() != eDir::Exit);
+	if (e != eDir::Exit && e != eDir::Error)
+		while (displayer.getEvent() != eDir::Exit);
 }
 
 void	run(uint8_t opt, Solver &solver)
@@ -131,20 +137,27 @@ int main(int ac, char **av)
 	uint8_t		opt;
 	const int	i = get_opt(&opt, ac, av);
 
-	if (ac - i == 0)
+	try
 	{
-		Solver solver(SIZE);
-		run(opt, solver);
-	}
-	else if  (ac - i == 1)
-	{
-		Grid grid = getGridFromFile(av[ac - 1]);
-		if (grid.size())
+		if (ac - i == 0)
 		{
-			Solver solver(grid);
+			Solver solver(SIZE);
 			run(opt, solver);
 		}
+		else if  (ac - i == 1)
+		{
+			Grid grid = getGridFromFile(av[ac - 1]);
+			if (grid.size())
+			{
+				Solver solver(grid);
+				run(opt, solver);
+			}
+		}
+		else
+			std::cout << "usage: npuzzle [-gml] [file]" << std::endl;
 	}
-	else
-		std::cout << "usage: npuzzle [-gml] [file]" << std::endl;
+	catch(std::exception const &e)
+	{
+		std::cout << e.what() << "\n";
+	}
 }
