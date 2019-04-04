@@ -52,7 +52,8 @@ std::string Solver::_gridToString(const Grid grid) const
 }
 
 bool Solver::add_in_open(Node *node, std::priority_queue<Node *,
-		std::vector<Node *>, mycomparison> open, Node *parent, std::unordered_map<std::string, PNode> &open_map) const
+		std::vector<Node *>, mycomparison> open, Node *parent, std::unordered_map<std::string, PNode> &open_map,
+		std::priority_queue<Node *, std::vector<Node *>, mycomparison> &openref) const
 {
 	Node *e;
 	int i = 0;
@@ -68,7 +69,14 @@ bool Solver::add_in_open(Node *node, std::priority_queue<Node *,
 	if (got->second.node->cost > node->cost)
 	{
 		got->second.node->parent = parent;
-		got->second.node->cost = node->cost;
+		Node	*newNode = new Node();
+		newNode->parent = got->second.node->parent;
+		newNode->grid = got->second.node->grid;
+		newNode->cost = node->cost;
+		newNode->h = got->second.node->h;
+		newNode->g = got->second.node->g;
+		openref.push(newNode);
+		got->second.node->cost = -1;
 	}
 	return false;
 }
@@ -140,6 +148,19 @@ int	Solver::getLinearConflict(const Grid & g) const
 	return res;
 }
 
+int	Solver::outOfPlace(const Grid &g) const
+{
+	int		res = 0;
+
+	for (int y = 0; y < this->_n; ++y) {
+		for (int x = 0; x < this->_n; ++x) {
+			if (g[y][x] != this->_n * this->_n)
+				res += g[y][x] == this->_puzzleSolved[y][x] ? 0 : 1;
+		}
+	}
+	return res;
+}
+
 int	Solver::h(const Grid & g) const
 {
 	int res = 0;
@@ -152,7 +173,7 @@ int	Solver::h(const Grid & g) const
 		}
 	}
 	//return res;
-	return res + (2 * getLinearConflict(g));
+	return res + this->outOfPlace(g) /*(2 * getLinearConflict(g))*/;
 }
 
 std::list<Grid>	Solver::solve(Grid grid) const
@@ -168,29 +189,35 @@ std::list<Grid>	Solver::solve(Grid grid) const
 	std::cout << "computing\n";
 	while (!open.empty()) {
 		Node *curr = open.top();
-		if (curr->grid == this->_puzzleSolved) {
-			std::cout << "Solution found:\n";
-			return reconstruct_path(curr);
-		}
-		open.pop();
-		closed.insert(*curr);
-		std::stack<Grid> successor = getSuccessor(curr);
-		while (!successor.empty()) {
-			Node *curr_s = new Node();
-			Grid curr_g = successor.top();
-			curr_s->grid = curr_g;
-			if (closed.count(*curr_s) == 0) {
-				curr_s->h = h(curr_g);
-				curr_s->g = g(curr);
-				curr_s->cost = curr_s->h + curr_s->g;
-				if (add_in_open(curr_s, open, curr, open_map))
-				{
-					curr_s->parent = curr;
-					open.push(curr_s);
-				}
+
+		if (curr->cost >= 0)
+		{
+			if (curr->grid == this->_puzzleSolved) {
+				std::cout << "Solution found:\n";
+				return reconstruct_path(curr);
 			}
-			successor.pop();
+			open.pop();
+			closed.insert(*curr);
+			std::stack<Grid> successor = getSuccessor(curr);
+			while (!successor.empty()) {
+				Node *curr_s = new Node();
+				Grid curr_g = successor.top();
+				curr_s->grid = curr_g;
+				if (closed.count(*curr_s) == 0) {
+					curr_s->h = h(curr_g);
+					curr_s->g = g(curr);
+					curr_s->cost = curr_s->h + curr_s->g;
+					if (add_in_open(curr_s, open, curr, open_map, open))
+					{
+						curr_s->parent = curr;
+						open.push(curr_s);
+					}
+				}
+				successor.pop();
+			}
 		}
+		else
+			open.pop();
 	}
 	std::cout << "unSolvable." << std::endl;
 	return std::list<Grid>();

@@ -75,12 +75,14 @@ class Solver
 		int	getLinearConflict(const Grid & g) const;
 		bool	add_in_open(Node *node, std::priority_queue<Node *,
 				std::vector<Node *>, mycomparison> open, Node*,
-				std::unordered_map<std::string, PNode> &open_map) const;
+				std::unordered_map<std::string, PNode> &open_map,
+				std::priority_queue<Node *,	std::vector<Node *>, mycomparison> &) const;
 		std::stack<Grid>	getSuccessor(Node *curr) const;
 		std::list<Grid>		reconstruct_path(Node *) const;
 		int					getCoordSolved(int , bool) const;
 		int					g(Node *) const;
 		int					h(const Grid & n) const;
+		int					outOfPlace(const Grid &) const;
 		std::list<Grid >	solve(Grid) const;
 		bool				solved(void) const;
 		bool				solved(Grid) const;
