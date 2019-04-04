@@ -133,7 +133,7 @@ int main(int ac, char **av)
 
 	if (ac - i == 0)
 	{
-		Solver solver(SIZE);
+		Solver solver(SIZE, opt);
 		run(opt, solver);
 	}
 	else if  (ac - i == 1)
@@ -141,10 +141,10 @@ int main(int ac, char **av)
 		Grid grid = getGridFromFile(av[ac - 1]);
 		if (grid.size())
 		{
-			Solver solver(grid);
+			Solver solver(grid, opt);
 			run(opt, solver);
 		}
 	}
 	else
-		std::cout << "usage: npuzzle [-gml] [file]" << std::endl;
+		std::cout << "usage: npuzzle [-gmlo] [file]" << std::endl;
 }

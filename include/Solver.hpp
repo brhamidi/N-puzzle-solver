@@ -63,16 +63,18 @@ class Solver
 		std::string			_gridToString(const Grid grid) const;
 
 		int					_n;
+		uint8_t					_opt;
 		Grid				_puzzle;
 		Grid				_puzzleSolved;
 		std::map<int, int>	_SolvedMap;
 
 	public:
 		~Solver(void);
-		Solver(size_t n);
-		Solver(Grid grid);
+		Solver(size_t, uint8_t);
+		Solver(Grid grid, uint8_t);
 
 		int	getLinearConflict(const Grid & g) const;
+		int	manathan(const Grid & g) const;
 		bool	add_in_open(Node *node, std::priority_queue<Node *,
 				std::vector<Node *>, mycomparison> open, Node*,
 				std::unordered_map<std::string, PNode> &open_map,

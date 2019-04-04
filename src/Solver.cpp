@@ -87,19 +87,6 @@ int	Solver::g(Node *curr_node) const
 	return curr_node->g + 1;
 }
 
-/*
-int	Solver::getCoordSolved(int value, bool b) const
-{
-	for (int y = 0; y < this->_n; ++y) {
-		for (int x = 0; x < this->_n; ++x) {
-			if (value == this->_puzzleSolved[y][x])
-				return b ? y : x;
-		}
-	}
-	return (0);
-}
-*/
-
 int	Solver::getCoordSolved(int value, bool b) const
 {
 	auto pos = this->_SolvedMap.find(value);
@@ -162,7 +149,7 @@ int	Solver::outOfPlace(const Grid &g) const
 	return res;
 }
 
-int	Solver::h(const Grid & g) const
+int	Solver::manathan(const Grid & g) const
 {
 	int res = 0;
 
@@ -173,8 +160,16 @@ int	Solver::h(const Grid & g) const
 					+ abs(x - getCoordSolved(g[y][x], false));
 		}
 	}
-	//return res;
-	return res + this->outOfPlace(g) /*(2 * getLinearConflict(g))*/;
+	return res;
+}
+
+int	Solver::h(const Grid & g) const
+{
+	if (this->_opt & OPT_L)
+		return manathan(g) + getLinearConflict(g);
+	if (this->_opt & OPT_O)
+		return manathan(g) + outOfPlace(g);
+	return manathan(g);
 }
 
 std::list<Grid>	Solver::solve(Grid grid) const
@@ -187,7 +182,6 @@ std::list<Grid>	Solver::solve(Grid grid) const
 	start->parent = nullptr;
 	start->grid = grid;
 	open.push(start);
-	std::cout << "computing\n";
 	while (!open.empty()) {
 		Node *curr = open.top();
 
@@ -243,9 +237,8 @@ Grid	Solver::move(eDir dir, Grid grid) const
 	return (grid);
 }
 
-Solver::Solver(size_t n):
-	_n(n), _puzzleSolved(n, std::vector<int>(n))
-
+Solver::Solver(size_t n, uint8_t opt):
+	_n(n), _puzzleSolved(n, std::vector<int>(n)), _opt(opt)
 {
 	this->_generateSolved();
 	this->_puzzle = _generate();
@@ -256,7 +249,7 @@ Solver::Solver(size_t n):
 	}
 }
 
-Solver::Solver(Grid grid): _n(grid.size()), _puzzle(grid), _puzzleSolved(grid.size(), std::vector<int>(grid.size()))
+Solver::Solver(Grid grid, uint8_t opt): _n(grid.size()), _puzzle(grid), _puzzleSolved(grid.size(), std::vector<int>(grid.size())), _opt(opt)
 {
 	this->_generateSolved();
 	for (int y = 0; y < this->_n; ++y) {
