@@ -62,34 +62,35 @@ class Solver
 		int					_countEmptyXLength(std::vector<int>, std::vector<int>) const;
 		std::string			_gridToString(const Grid grid) const;
 
-		int		_n;
-		Grid	_puzzle;
-		Grid	_puzzleSolved;
-		std::map<int, int>	_testMap;
+		int					_n;
+		Grid				_puzzle;
+		Grid				_puzzleSolved;
+		std::map<int, int>	_SolvedMap;
 
 	public:
 		~Solver(void);
 		Solver(size_t n);
-		Solver(std::queue<int>, size_t n);
+		Solver(Grid grid);
 
 		int	getLinearConflict(const Grid & g) const;
 		bool	add_in_open(Node *node, std::priority_queue<Node *,
 				std::vector<Node *>, mycomparison> open, Node*,
 				std::unordered_map<std::string, PNode> &open_map) const;
-		std::stack<Grid>		getSuccessor(Node *curr) const;
-		std::list<Grid>			reconstruct_path(Node *) const;
-		int				getCoordSolved(int , bool) const;
-		int				g(Node *) const;
-		int				h(const Grid & n) const;
-		std::list<Grid >		solve(Grid) const;
+		std::stack<Grid>	getSuccessor(Node *curr) const;
+		std::list<Grid>		reconstruct_path(Node *) const;
+		int					getCoordSolved(int , bool) const;
+		int					g(Node *) const;
+		int					h(const Grid & n) const;
+		std::list<Grid >	solve(Grid) const;
 		bool				solved(void) const;
 		bool				solved(Grid) const;
-		const Grid &			getPuzzle(void) const;
+		const Grid &		getPuzzle(void) const;
 		bool				canMove(eDir dir, Grid grid) const;
 		Grid				move(eDir dir, Grid grid) const;
 		void				move(eDir dir);
+		void				printer(const std::list<Grid>) const;
 		void				print(const Grid &) const;
-		int				getSize(void) const;
+		int					getSize(void) const;
 		void				print(void) const;
 		Grid 				getCopyPuzzle(void) const;
 

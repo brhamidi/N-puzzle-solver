@@ -57,9 +57,9 @@ bool Solver::add_in_open(Node *node, std::priority_queue<Node *,
 	Node *e;
 	int i = 0;
 	PNode pnode(node);
-
 	std::string stringGrid = this->_gridToString(node->grid);
 	auto got = open_map.find(stringGrid);
+
 	if (got == open_map.end())
 	{
 		open_map.insert(std::pair<std::string, PNode>(stringGrid, pnode));
@@ -93,7 +93,7 @@ int	Solver::getCoordSolved(int value, bool b) const
 
 int	Solver::getCoordSolved(int value, bool b) const
 {
-	auto pos = this->_testMap.find(value);
+	auto pos = this->_SolvedMap.find(value);
 
 	return b ? pos->second / this->_n : pos->second % this->_n;
 }
@@ -169,7 +169,7 @@ std::list<Grid>	Solver::solve(Grid grid) const
 	while (!open.empty()) {
 		Node *curr = open.top();
 		if (curr->grid == this->_puzzleSolved) {
-			print(curr->grid);
+			std::cout << "Solution found:\n";
 			return reconstruct_path(curr);
 		}
 		open.pop();
@@ -223,7 +223,17 @@ Solver::Solver(size_t n):
 	this->_puzzle = _generate();
 	for (int y = 0; y < this->_n; ++y) {
 		for (int x = 0; x < this->_n; ++x) {
-			this->_testMap.insert(std::pair<int, int>(this->_puzzleSolved[y][x], y * this->_n + x));
+			this->_SolvedMap.insert(std::pair<int, int>(this->_puzzleSolved[y][x], y * this->_n + x));
+		}
+	}
+}
+
+Solver::Solver(Grid grid): _n(grid.size()), _puzzle(grid), _puzzleSolved(grid.size(), std::vector<int>(grid.size()))
+{
+	this->_generateSolved();
+	for (int y = 0; y < this->_n; ++y) {
+		for (int x = 0; x < this->_n; ++x) {
+			this->_SolvedMap.insert(std::pair<int, int>(this->_puzzleSolved[y][x], y * this->_n + x));
 		}
 	}
 }
@@ -308,7 +318,7 @@ int	Solver::getSize(void) const
 	return this->_n;
 }
 
-void Solver::print(const Grid & puzzle) const
+void	Solver::print(const Grid & puzzle) const
 {
 	const size_t n = puzzle.size();;
 
@@ -316,6 +326,15 @@ void Solver::print(const Grid & puzzle) const
 		for (const auto x : y)
 			std::cout << (x == (n * n) ? " " : std::to_string(x)) << " ";
 		std::cout << std::endl;
+	}
+}
+
+void	Solver::printer(const std::list<Grid> lg) const
+{
+	for(auto g : lg)
+	{
+		std::cout << "\n";
+		this->print(g);
 	}
 }
 
