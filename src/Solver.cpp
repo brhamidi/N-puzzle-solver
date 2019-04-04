@@ -23,6 +23,7 @@ std::list<Grid> Solver::reconstruct_path(Node *e) const
 		path.push_front(e->grid);
 		e = e->parent;
 	}
+	path.push_front(e->grid);
 	return path;
 }
 

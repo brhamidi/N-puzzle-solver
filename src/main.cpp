@@ -3,32 +3,6 @@
 # include "Graphic_displayer.hpp"
 # include <fstream>
 
-# define SIZE 4
-Grid	getGridFromIn(void)
-{
-	std::string comment;
-	std::getline(std::cin, comment);
-	std::getline(std::cin, comment);
-	Grid e(SIZE, std::vector<int>(SIZE, 0));
-
-	for (int y = 0 ; y < SIZE; ++y)
-	{
-		std::getline(std::cin, comment);
-		char * pch = strtok ((char *)comment.c_str()," ");
-		for (int x = 0; pch != NULL; x++)
-		{
-			int v = atoi(pch);
-			if (v == 0)
-				v = SIZE * SIZE;
-			else if (v== SIZE*SIZE)
-				v = 0;
-			e[y][x] = v;
-			pch = strtok (NULL, " ");
-		}
-	}
-	return e;
-}
-
 Grid	fillGrid(std::fstream &fs, int size)
 {
 	char	*pch;
@@ -80,8 +54,8 @@ Grid	fillGrid(std::fstream &fs, int size)
 Grid	getGridFromFile(std::string filename)
 {
 	std::string		line;
-	std::fstream	fs;
-	int				size = 0;
+	std::fstream		fs;
+	int			size = 0;
 	Grid			e;
 
 	fs.open(filename, std::fstream::in);
@@ -110,7 +84,7 @@ Grid	getGridFromFile(std::string filename)
 
 void	graphicMode(Solver &solver)
 {
-	Graphic_displayer	displayer = Graphic_displayer(solver.getSize(), "taq3");
+	Graphic_displayer	displayer = Graphic_displayer(solver.getSize(), "example/taq3");
 	eDir e;
 	displayer.list_displayer(solver.getPuzzle());
 
@@ -122,9 +96,11 @@ void	graphicMode(Solver &solver)
 			break;
 		}
 		if (e != eDir::Resolve)
+		{
 			if (solver.canMove(e, solver.getPuzzle()))
 				solver.move(e);
-		if (e == eDir::Resolve)
+		}
+		else
 		{
 			displayer.displayGridList(solver.solve(solver.getPuzzle()));
 			break;
@@ -139,13 +115,9 @@ int main(int ac, char **av)
 	const int	i = get_opt(&opt, ac, av);
 
 	if (ac - i == 0)
-	{
-		std::cout << "no file" << std::endl;
-		Solver solver(3);
-	}
+		Solver solver(SIZE);
 	else if  (ac - i == 1)
 	{
-		std::cout << "one file" << std::endl;
 		Grid grid = getGridFromFile(av[ac - 1]);
 		if (grid.size())
 		{
@@ -161,7 +133,6 @@ int main(int ac, char **av)
 			{
 				solver.print(solver.getPuzzle());
 				std::cout << "This gris is unsolvable\n";
-				graphicMode(solver);
 			}
 		}
 	}
