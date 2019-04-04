@@ -107,6 +107,23 @@ void	graphicMode(Solver &solver)
 		}
 		displayer.list_displayer(solver.getPuzzle());
 	}
+	while (displayer.getEvent() != eDir::Exit);
+}
+
+void	run(uint8_t opt, Solver &solver)
+{
+	if (solver.isSolvable(solver.getPuzzle()))
+	{
+		if (opt & OPT_G)
+			graphicMode(solver);
+		else
+			solver.printer(solver.solve((solver.getPuzzle())));
+	}
+	else
+	{
+		solver.print(solver.getPuzzle());
+		std::cout << "This gris is unsolvable\n";
+	}
 }
 
 int main(int ac, char **av)
@@ -115,25 +132,17 @@ int main(int ac, char **av)
 	const int	i = get_opt(&opt, ac, av);
 
 	if (ac - i == 0)
+	{
 		Solver solver(SIZE);
+		run(opt, solver);
+	}
 	else if  (ac - i == 1)
 	{
 		Grid grid = getGridFromFile(av[ac - 1]);
 		if (grid.size())
 		{
 			Solver solver(grid);
-			if (solver.isSolvable(grid))
-			{
-				if (opt & OPT_G)
-					graphicMode(solver);
-				else
-					solver.printer(solver.solve((solver.getPuzzle())));
-			}
-			else
-			{
-				solver.print(solver.getPuzzle());
-				std::cout << "This gris is unsolvable\n";
-			}
+			run(opt, solver);
 		}
 	}
 	else
