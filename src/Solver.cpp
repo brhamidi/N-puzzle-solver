@@ -163,7 +163,7 @@ int	Solver::manathan(const Grid & g) const
 int	Solver::h(const Grid & g) const
 {
 	if (this->_opt & OPT_U)
-		return manathan(g);
+		return 0;
 	if (this->_opt & OPT_L)
 		return manathan(g) + getLinearConflict(g);
 	if (this->_opt & OPT_O)
