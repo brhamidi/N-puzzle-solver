@@ -115,20 +115,16 @@ int	Solver::getLinearConflict(const Grid & g) const
 						res += 2;
 				}
 			}
-		}
-	}
-	for (int x = 0; x < this->_n; ++x) {
-		for (int y = 1; y < this->_n; ++y) {
-			if (g[0][x] != this->_n * this->_n &&
-					g[y][x] != this->_n * this->_n) {
-				f_x = getCoordSolved(g[0][x], false);
-				f1_x = getCoordSolved(g[y][x], false);
+			if (g[0][y] != this->_n * this->_n &&
+					g[x][y] != this->_n * this->_n) {
+				f_x = getCoordSolved(g[0][y], false);
+				f1_x = getCoordSolved(g[x][y], false);
 				if (f_x == f1_x) {
-					f_y = getCoordSolved(g[0][x], true);
-					f1_y = getCoordSolved(g[y][x], true);
-					if (y < f_y && (f1_y < f_y && f1_y > y))
+					f_y = getCoordSolved(g[0][y], true);
+					f1_y = getCoordSolved(g[x][y], true);
+					if (x < f_y && (f1_y < f_y && f1_y > x))
 						res += 2;
-					if (y > f_y && (f1_y > f_y && f1_y < y))
+					if (x > f_y && (f1_y > f_y && f1_y < x))
 						res += 2;
 				}
 			}
