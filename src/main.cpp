@@ -82,35 +82,30 @@ Grid	getGridFromFile(std::string filename)
 	return e;
 }
 
-void	graphicMode(Solver &solver)
+void	graphicMode(Solver &solver, size_t &time, size_t &size)
 {
-	Graphic_displayer	displayer = Graphic_displayer(solver.getSize(), "nPuzzleImage");
-	eDir				e;
-	int					moves = 0;
-	displayer.list_displayer(solver.getPuzzle(), moves);
+	Graphic_displayer	displayer = Graphic_displayer(solver.getSize(), "example/taq3");
+	eDir e;
+	displayer.list_displayer(solver.getPuzzle());
 
 	while ((e = displayer.getEvent()) != eDir::Exit && e != eDir::Error)
 	{
-		if (e != eDir::Resolve)
-		{
-			if (solver.canMove(e, solver.getPuzzle()))
-			{
-				solver.move(e);
-				++moves;
-			}
-		}
-		else
-		{
-			e = displayer.displayGridList(solver.solve(solver.getPuzzle()));
-			break;
-		}
-		displayer.list_displayer(solver.getPuzzle(), moves);
 		if (solver.solved(solver.getPuzzle()))
 		{
 			std::cout << "SOLVED\n";
-			displayer.list_displayer(solver.getPuzzle(), moves * (-1));
 			break;
 		}
+		if (e != eDir::Resolve)
+		{
+			if (solver.canMove(e, solver.getPuzzle()))
+				solver.move(e);
+		}
+		else
+		{
+			displayer.displayGridList(solver.solve(solver.getPuzzle(), time, size));
+			break;
+		}
+		displayer.list_displayer(solver.getPuzzle());
 	}
 	if (e != eDir::Exit && e != eDir::Error)
 		while (displayer.getEvent() != eDir::Exit);
@@ -118,12 +113,15 @@ void	graphicMode(Solver &solver)
 
 void	run(uint8_t opt, Solver &solver)
 {
+	size_t	time = 0;
+	size_t	size = 0;
+
 	if (solver.isSolvable(solver.getPuzzle()))
 	{
 		if (opt & OPT_G)
-			graphicMode(solver);
+			graphicMode(solver, time, size);
 		else
-			solver.printer(solver.solve((solver.getPuzzle())));
+			solver.printer(solver.solve(solver.getPuzzle(), time, size), time, size);
 	}
 	else
 	{
@@ -137,27 +135,20 @@ int main(int ac, char **av)
 	uint8_t		opt;
 	const int	i = get_opt(&opt, ac, av);
 
-	try
+	if (ac - i == 0)
 	{
-		if (ac - i == 0)
+		Solver solver(SIZE, opt);
+		run(opt, solver);
+	}
+	else if  (ac - i == 1)
+	{
+		Grid grid = getGridFromFile(av[ac - 1]);
+		if (grid.size())
 		{
-			Solver solver(SIZE);
+			Solver solver(grid, opt);
 			run(opt, solver);
 		}
-		else if  (ac - i == 1)
-		{
-			Grid grid = getGridFromFile(av[ac - 1]);
-			if (grid.size())
-			{
-				Solver solver(grid);
-				run(opt, solver);
-			}
-		}
-		else
-			std::cout << "usage: npuzzle [-gml] [file]" << std::endl;
 	}
-	catch(std::exception const &e)
-	{
-		std::cout << e.what() << "\n";
-	}
+	else
+		std::cout << "usage: npuzzle [-gmlo] [file]" << std::endl;
 }

@@ -4,7 +4,7 @@ void	usage(char *str)
 {
 	std::cout << "npuzzle: illegal option -- ";
 	std::cout << str << std::endl;
-	std::cout << "usage: npuzzle [-gml] [file]" << std::endl;
+	std::cout << "usage: npuzzle [-gmlo] [file]" << std::endl;
 	std::exit(EXIT_FAILURE);
 }
 
@@ -33,6 +33,8 @@ static void	fill_opt(unsigned char *opt, char *arg)
 	{
 		if (*arg == 'g')
 			*opt = *opt | OPT_G;
+		if (*arg == 'o')
+			*opt = *opt | OPT_O;
 		if (*arg == 'm')
 			*opt = *opt | OPT_M;
 		if (*arg == 'l')
