@@ -111,7 +111,7 @@ void	run(uint8_t opt, Solver &solver)
 
 	if (solver.isSolvable(solver.getPuzzle()))
 	{
-		if (opt & OPT_G)
+		if (opt & OPT_V)
 			graphicMode(solver, time, size);
 		else
 			solver.printer(solver.solve(solver.getPuzzle(), time, size), time, size);

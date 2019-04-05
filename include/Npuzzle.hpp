@@ -8,13 +8,15 @@
 
 typedef std::vector<std::vector<int> > Grid;
 
-# define CHARS_OPT	"gmlo"
+# define CHARS_OPT	"vmlogu"
 # define DELIMIT	"--"
 
-# define OPT_G		0b00000001
+# define OPT_V		0b00000001
 # define OPT_M		0b00000010
 # define OPT_L		0b00000100
 # define OPT_O		0b00001000
+# define OPT_G		0b00010000
+# define OPT_U		0b00100000
 
 enum eDir
 {

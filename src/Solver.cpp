@@ -162,6 +162,8 @@ int	Solver::manathan(const Grid & g) const
 
 int	Solver::h(const Grid & g) const
 {
+	if (this->_opt & OPT_U)
+		return manathan(g);
 	if (this->_opt & OPT_L)
 		return manathan(g) + getLinearConflict(g);
 	if (this->_opt & OPT_O)
@@ -175,12 +177,14 @@ std::list<Grid>	Solver::solve(Grid grid, size_t &time, size_t &size) const
 	std::unordered_map<std::string, PNode> open_map;
 	std::unordered_set<Node, NodeHash> closed;
 	Node *start = new Node();
+	Node *curr;
 
 	start->parent = nullptr;
 	start->grid = grid;
+	start->cost = h(grid) + 1;
 	open.push(start);
 	while (!open.empty()) {
-		Node *curr = open.top();
+		curr = open.top();
 
 		if (curr->cost >= 0)
 		{
@@ -193,6 +197,7 @@ std::list<Grid>	Solver::solve(Grid grid, size_t &time, size_t &size) const
 			open.pop();
 			closed.insert(*curr);
 			std::stack<Grid> successor = getSuccessor(curr);
+			Node *lowest = nullptr;
 			while (!successor.empty()) {
 				Node *curr_s = new Node();
 				Grid curr_g = successor.top();
@@ -203,18 +208,23 @@ std::list<Grid>	Solver::solve(Grid grid, size_t &time, size_t &size) const
 					curr_s->cost = curr_s->h + curr_s->g;
 					if (add_in_open(curr_s, open, curr, open_map, open))
 					{
+						if (lowest == nullptr || curr_s->cost < lowest->cost)
+							lowest = curr_s;
 						curr_s->parent = curr;
-						open.push(curr_s);
+						if (! (this->_opt & OPT_G))
+							open.push(curr_s);
 					}
 				}
 				successor.pop();
 			}
+			if (lowest != nullptr && this->_opt & OPT_G)
+				open.push(lowest);
 		}
 		else
 			open.pop();
 	}
-	std::cout << "unSolvable." << std::endl;
-	return std::list<Grid>();
+	std::cout << "Not found." << std::endl;
+	return reconstruct_path(curr);
 }
 
 void	Solver::_gridMover(eDir dir, Grid &grid) const
