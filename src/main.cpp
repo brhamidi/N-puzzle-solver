@@ -84,9 +84,10 @@ Grid	getGridFromFile(std::string filename)
 
 void	graphicMode(Solver &solver, size_t &time, size_t &size)
 {
-	Graphic_displayer	displayer = Graphic_displayer(solver.getSize(), "example/taq3");
-	eDir e;
-	displayer.list_displayer(solver.getPuzzle());
+	Graphic_displayer	displayer = Graphic_displayer(solver.getSize(), "nPuzzleImage");
+	eDir	e;
+	int		moves = 0;
+	displayer.list_displayer(solver.getPuzzle(), moves);
 
 	while ((e = displayer.getEvent()) != eDir::Exit && e != eDir::Error)
 	{
@@ -95,17 +96,21 @@ void	graphicMode(Solver &solver, size_t &time, size_t &size)
 			std::cout << "SOLVED\n";
 			break;
 		}
+		std::cout << e << std::endl;
 		if (e != eDir::Resolve)
 		{
 			if (solver.canMove(e, solver.getPuzzle()))
+			{
 				solver.move(e);
+				++moves;
+				displayer.list_displayer(solver.getPuzzle(), moves);
+			}
 		}
 		else
 		{
-			displayer.displayGridList(solver.solve(solver.getPuzzle(), time, size));
+			e = displayer.displayGridList(solver.solve(solver.getPuzzle(), time, size), time, size);
 			break;
 		}
-		displayer.list_displayer(solver.getPuzzle());
 	}
 	if (e != eDir::Exit && e != eDir::Error)
 		while (displayer.getEvent() != eDir::Exit);
@@ -126,7 +131,7 @@ void	run(uint8_t opt, Solver &solver)
 	else
 	{
 		solver.print(solver.getPuzzle());
-		std::cout << "This gris is unsolvable\n";
+		std::cout << "This grid is unsolvable\n";
 	}
 }
 

@@ -20,7 +20,7 @@ class Graphic_displayer
 		~Graphic_displayer(void);
 		bool	list_displayer(const Grid&, int);
 		eDir	getEvent(void);
-		eDir	displayGridList(std::list<Grid>);
+		eDir	displayGridList(std::list<Grid>, int, int);
 
 	private:
 		int							_windowSize;
@@ -33,7 +33,7 @@ class Graphic_displayer
 		std::map<int, eDir > 		 _dir;
 
 		bool						_fill_textures_sprites_lists(int size);
-		bool						_displayTransition(Grid, std::pair<int, int>, int&);
+		bool						_displayTransition(Grid, std::pair<int, int>, int&, int, int);
 		std::pair<int, int>			_getDiff(Grid, Grid) const;
 		bool						_readEvent(int &) const;
 };

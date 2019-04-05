@@ -78,6 +78,7 @@ bool Solver::add_in_open(Node *node, std::priority_queue<Node *,
 		newNode->g = got->second.node->g;
 		openref.push(newNode);
 		got->second.node->cost = -1;
+		got->second.node = newNode;
 	}
 	return false;
 }

@@ -27,7 +27,7 @@ Graphic_displayer::Graphic_displayer(int size, std::string name): _size(size), _
 		throw std::runtime_error(std::string("Error while loading font for SFML, please make sure font exist/got permissions"));
 	this->_text.setFont(this->_font);
 	this->_text.setString(" Press:\n\tArrow key to move\n\tEscape to exit\n\tEnter to resolve\n\tSpace to pause/unpause\n\t< to slow\n\t> to accelarate");
-	this->_text.setCharacterSize(40);
+	this->_text.setCharacterSize(38);
 	this->_text.setPosition(sf::Vector2f(600, 0));
 	this->_text.setFillColor(sf::Color::White);
 	this->_dir[sf::Keyboard::Left] = eDir::Left;
@@ -52,7 +52,7 @@ Graphic_displayer::~Graphic_displayer(void)
 bool	Graphic_displayer::list_displayer(const Grid &grid, int moves)
 {
 	int			i = 0;
-	
+	/*
 	if (this->_sprites_list.size() != this->_size * this->_size)
 	{
 		std::cout << "Error can't print while sprites are not all available\n";
@@ -62,7 +62,7 @@ bool	Graphic_displayer::list_displayer(const Grid &grid, int moves)
 	{
 		std::cout << "Error SFML window not loaded\n";
 		return false;
-	}
+	}*/
 	this->_window->clear(sf::Color::Black);
 	for (auto line : grid)
 		for (auto c : line)
@@ -125,7 +125,7 @@ std::pair<int, int>	Graphic_displayer::_getDiff(Grid grid1, Grid grid2) const
 	return (std::make_pair(0, 0));
 }
 
-bool	Graphic_displayer::_displayTransition(Grid grid, std::pair<int, int> pos, int &timer)
+bool	Graphic_displayer::_displayTransition(Grid grid, std::pair<int, int> pos, int &timer, int time, int size)
 {
 	int i = 0;
 	int dirX = pos.first % this->_size - pos.second % this->_size;
@@ -166,7 +166,7 @@ bool	Graphic_displayer::_displayTransition(Grid grid, std::pair<int, int> pos, i
 
 		if (i + 1 == transitionFrames)
 			++moves;
-		this->_text.setString(" Press:\n\tArrow key to move\n\tEscape to exit\n\tEnter to resolve\n\tSpace to pause/unpause\n\t< to slow\n\t> to accelarate\n\n Moves: " + std::to_string(moves));
+		this->_text.setString(" Press:\n\tArrow key to move\n\tEscape to exit\n\tEnter to resolve\n\tSpace to pause/unpause\n\t< to slow\n\t> to accelarate\n\n Moves: " + std::to_string(moves) + "\n\n Complexity\n\tin time: " + std::to_string(time) + "\n\tin size: " + std::to_string(size));
 		this->_window->draw(this->_text);
 		this->_window->display();
 		usleep(timer);
@@ -206,7 +206,7 @@ bool	Graphic_displayer::_readEvent(int &timer) const
 	return true;
 }
 
-eDir	Graphic_displayer::displayGridList(std::list<Grid> gridList)
+eDir	Graphic_displayer::displayGridList(std::list<Grid> gridList, int time, int size)
 {
 	Grid				previous = gridList.front();
 	std::pair<int, int>	pair;
@@ -218,7 +218,7 @@ eDir	Graphic_displayer::displayGridList(std::list<Grid> gridList)
 	{
 		pair = this->_getDiff(previous, grid);
 		if (pair.first != pair.second)
-			if (!this->_displayTransition(previous, pair, timer))
+			if (!this->_displayTransition(previous, pair, timer, time, size))
 				return eDir::Exit;
 		previous = grid;
 	}
