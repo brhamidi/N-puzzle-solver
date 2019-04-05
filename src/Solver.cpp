@@ -172,7 +172,7 @@ int	Solver::h(const Grid & g) const
 	return manathan(g);
 }
 
-std::list<Grid>	Solver::solve(Grid grid) const
+std::list<Grid>	Solver::solve(Grid grid, size_t &time, size_t &size) const
 {
 	std::priority_queue<Node *, std::vector<Node *>, mycomparison> open;
 	std::unordered_map<std::string, PNode> open_map;
@@ -187,10 +187,12 @@ std::list<Grid>	Solver::solve(Grid grid) const
 
 		if (curr->cost >= 0)
 		{
+			++time;
 			if (curr->grid == this->_puzzleSolved) {
 				std::cout << "Solution found:\n";
 				return reconstruct_path(curr);
 			}
+			size = size >= open.size() ? size : open.size();
 			open.pop();
 			closed.insert(*curr);
 			std::stack<Grid> successor = getSuccessor(curr);
@@ -350,13 +352,16 @@ void	Solver::print(const Grid & puzzle) const
 	}
 }
 
-void	Solver::printer(const std::list<Grid> lg) const
+void	Solver::printer(const std::list<Grid> lg, size_t &time, size_t &size) const
 {
 	for(auto g : lg)
 	{
 		std::cout << "\n";
 		this->print(g);
 	}
+	std::cout << "Time Complexity: " << time << std::endl;
+	std::cout << "Size Complexity: " << size << std::endl;
+	std::cout << "Number of moves: " << lg.size() << std::endl;
 }
 
 bool	Solver::solved(Grid grid) const

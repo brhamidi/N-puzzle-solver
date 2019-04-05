@@ -85,14 +85,14 @@ class Solver
 		int					g(Node *) const;
 		int					h(const Grid & n) const;
 		int					outOfPlace(const Grid &) const;
-		std::list<Grid >	solve(Grid) const;
+		std::list<Grid >	solve(Grid, size_t &, size_t &) const;
 		bool				solved(void) const;
 		bool				solved(Grid) const;
 		const Grid &		getPuzzle(void) const;
 		bool				canMove(eDir dir, Grid grid) const;
 		Grid				move(eDir dir, Grid grid) const;
 		void				move(eDir dir);
-		void				printer(const std::list<Grid>) const;
+		void				printer(const std::list<Grid>, size_t &, size_t &) const;
 		void				print(const Grid &) const;
 		int					getSize(void) const;
 		void				print(void) const;
