@@ -82,7 +82,7 @@ Grid	getGridFromFile(std::string filename)
 	return e;
 }
 
-void	graphicMode(Solver &solver)
+void	graphicMode(Solver &solver, size_t &time, size_t &size)
 {
 	Graphic_displayer	displayer = Graphic_displayer(solver.getSize(), "example/taq3");
 	eDir e;
@@ -102,7 +102,7 @@ void	graphicMode(Solver &solver)
 		}
 		else
 		{
-			displayer.displayGridList(solver.solve(solver.getPuzzle()));
+			displayer.displayGridList(solver.solve(solver.getPuzzle(), time, size));
 			break;
 		}
 		displayer.list_displayer(solver.getPuzzle());
@@ -112,12 +112,15 @@ void	graphicMode(Solver &solver)
 
 void	run(uint8_t opt, Solver &solver)
 {
+	size_t	time = 0;
+	size_t	size = 0;
+
 	if (solver.isSolvable(solver.getPuzzle()))
 	{
 		if (opt & OPT_G)
-			graphicMode(solver);
+			graphicMode(solver, time, size);
 		else
-			solver.printer(solver.solve((solver.getPuzzle())));
+			solver.printer(solver.solve(solver.getPuzzle(), time, size), time, size);
 	}
 	else
 	{
