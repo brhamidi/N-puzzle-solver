@@ -2,17 +2,13 @@
 
 namespace Croped_image_generator
 {
-	bool	crop_image_xy(cv::Mat image, int x, int y, int n, int size, int name)
+	void	crop_image_xy(cv::Mat image, int x, int y, int n, int size, int name)
 	{
 		cv::Mat croped = image(cv::Rect(size / n * x, size / n * y, size / n, size / n));
 		if (!imwrite("images/" + std::to_string(name) + ".jpg", croped))
-		{
-			std::cout << "failed to create image\n";
-			return (false);
-		}
-		return (true);
+			throw std::runtime_error("failed to create image");
 	}
-	bool	image_divider(int n_line, std::string image_name, int resize)
+	void	image_divider(int n_line, std::string image_name, int resize)
 	{
 		cv::Mat	image;
 		cv::Mat	resized;
@@ -22,14 +18,8 @@ namespace Croped_image_generator
 		int name = 0;
 
 		image = cv::imread(image_name);
-		//TODO
-//		if (!std::filesystem::exists("image") && !std::filesystem::create_directory("images"))
-//			return -1;
 		if(!image.data)
-		{
-			std::cout <<  "Could not open or find the image" << std::endl ;
-			return (false);
-		}
+			throw std::runtime_error("Could not open or find the image");
 		cv::resize(image, resized, cv::Size(resize, resize));
 		while (name < n_line * n_line)
 		{
@@ -50,7 +40,6 @@ namespace Croped_image_generator
 			++bl;
 			++y;
 		}
-		return (true);
 	}
 }
 

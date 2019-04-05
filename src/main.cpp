@@ -33,21 +33,15 @@ Grid	fillGrid(std::fstream &fs, int size)
 			}
 			if (x != size|| pch != NULL)
 			{
-				std::cout << "Error bad grid format\n";
 				fs.close();
-				Grid err;
-				return err;
+				throw std::runtime_error("Error bad grid format");
 			}
 			y++;
 		}
 	}
 	fs.close();
 	if (y != size)
-	{
-		std::cout << "Error bad grid format\n";
-		Grid err;
-		return err;
-	}
+		throw std::runtime_error("Error bad grid format");
 	return e;
 }
 
@@ -60,10 +54,7 @@ Grid	getGridFromFile(std::string filename)
 
 	fs.open(filename, std::fstream::in);
 	if (!fs)
-	{
-		std::cout << "Error, please make sure file exist and you got right for \"" << filename << "\"\n";
-		return e;
-	}
+		throw std::runtime_error("Error, please make sure file exist and you got right");
 	while (std::getline(fs, line))
 	{
 		if (line[0] != '#')
@@ -71,9 +62,7 @@ Grid	getGridFromFile(std::string filename)
 			if (!size)
 			{
 				if (!(size = atoi(line.c_str())))
-				{
-					std::cout << "Error bad grid format\n";
-				}
+					throw std::runtime_error( "Error bad grid format");
 				return (fillGrid(fs, size));
 			}
 		}
@@ -84,19 +73,13 @@ Grid	getGridFromFile(std::string filename)
 
 void	graphicMode(Solver &solver, size_t &time, size_t &size)
 {
-	Graphic_displayer	displayer = Graphic_displayer(solver.getSize(), "nPuzzleImage");
+	Graphic_displayer	displayer = Graphic_displayer(solver.getSize(), "example/taq3");
 	eDir	e;
 	int		moves = 0;
 	displayer.list_displayer(solver.getPuzzle(), moves);
 
 	while ((e = displayer.getEvent()) != eDir::Exit && e != eDir::Error)
 	{
-		if (solver.solved(solver.getPuzzle()))
-		{
-			std::cout << "SOLVED\n";
-			break;
-		}
-		std::cout << e << std::endl;
 		if (e != eDir::Resolve)
 		{
 			if (solver.canMove(e, solver.getPuzzle()))
@@ -109,6 +92,11 @@ void	graphicMode(Solver &solver, size_t &time, size_t &size)
 		else
 		{
 			e = displayer.displayGridList(solver.solve(solver.getPuzzle(), time, size), time, size);
+			break;
+		}
+		if (solver.solved(solver.getPuzzle()))
+		{
+			displayer.list_displayer(solver.getPuzzle(), moves * -1);
 			break;
 		}
 	}
@@ -131,7 +119,7 @@ void	run(uint8_t opt, Solver &solver)
 	else
 	{
 		solver.print(solver.getPuzzle());
-		std::cout << "This grid is unsolvable\n";
+		std::cout << "This grid is unsolvable" << std::endl;;
 	}
 }
 
@@ -140,20 +128,24 @@ int main(int ac, char **av)
 	uint8_t		opt;
 	const int	i = get_opt(&opt, ac, av);
 
-	if (ac - i == 0)
-	{
-		Solver solver(SIZE, opt);
-		run(opt, solver);
-	}
-	else if  (ac - i == 1)
-	{
-		Grid grid = getGridFromFile(av[ac - 1]);
-		if (grid.size())
+	try {
+		if (ac - i == 0)
 		{
-			Solver solver(grid, opt);
+			Solver solver(SIZE, opt);
 			run(opt, solver);
 		}
+		else if  (ac - i == 1)
+		{
+			Grid grid = getGridFromFile(av[ac - 1]);
+			if (grid.size())
+			{
+				Solver solver(grid, opt);
+				run(opt, solver);
+			}
+		}
+		else
+			std::cout << "usage: npuzzle [-gmlo] [file]" << std::endl;
+	} catch (std::exception & e) {
+		std::cout << e.what() << std::endl;
 	}
-	else
-		std::cout << "usage: npuzzle [-gmlo] [file]" << std::endl;
 }

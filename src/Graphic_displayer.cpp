@@ -17,8 +17,7 @@ bool	Graphic_displayer::_fill_textures_sprites_lists(int size)
 
 Graphic_displayer::Graphic_displayer(int size, std::string name): _size(size), _windowSize(600)
 {
-	if (!Croped_image_generator::image_divider(size, name, this->_windowSize))
-		throw std::runtime_error(std::string("Error while creating croped image, please make sure 'images' folder and that <0 - (size * size)>.jpg exist/got permissions"));
+	Croped_image_generator::image_divider(size, name, this->_windowSize);
 	if (!_fill_textures_sprites_lists(size))
 		throw std::runtime_error(std::string("Error while loading texture, please make sure 'images' folder and that <0 - size * size>.jpg exist/got permissions"));
 	if (!(this->_window = new sf::RenderWindow(sf::VideoMode(this->_windowSize + 600, this->_windowSize), "N puzzle")))
@@ -52,17 +51,7 @@ Graphic_displayer::~Graphic_displayer(void)
 bool	Graphic_displayer::list_displayer(const Grid &grid, int moves)
 {
 	int			i = 0;
-	/*
-	if (this->_sprites_list.size() != this->_size * this->_size)
-	{
-		std::cout << "Error can't print while sprites are not all available\n";
-		return false;
-	}
-	if (!this->_window)
-	{
-		std::cout << "Error SFML window not loaded\n";
-		return false;
-	}*/
+
 	this->_window->clear(sf::Color::Black);
 	for (auto line : grid)
 		for (auto c : line)
@@ -89,11 +78,7 @@ bool	Graphic_displayer::list_displayer(const Grid &grid, int moves)
 eDir	Graphic_displayer::getEvent(void)
 {
 	sf::Event	event;
-	if (!this->_window)
-	{
-		std::cout << "Error SFML window not loaded\n";
-		return eDir::Error;
-	}
+
 	while (_window->waitEvent(event))
 	{
 		if (event.type == sf::Event::KeyPressed &&
