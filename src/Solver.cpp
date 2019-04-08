@@ -172,8 +172,8 @@ bool Solver::add_in_open(Node *node, std::priority_queue<Node *,
 
 void	Solver::_free_all(std::list<Node *> & addr) const
 {
-//	for (auto * e : addr)
-//		delete e;
+	for (auto e : addr)
+		delete e;
 }
 std::list<Grid>	Solver::solve(Grid grid, size_t &time, size_t &size) const
 {
@@ -197,8 +197,9 @@ std::list<Grid>	Solver::solve(Grid grid, size_t &time, size_t &size) const
 			++time;
 			if (curr->grid == this->_puzzleSolved) {
 				std::cout << "Solution found" << std::endl;
+				auto res = reconstruct_path(curr);
 				_free_all(addr);
-				return reconstruct_path(curr);
+				return res;
 			}
 			size = size >= open.size() ? size : open.size();
 			open.pop();
@@ -207,6 +208,7 @@ std::list<Grid>	Solver::solve(Grid grid, size_t &time, size_t &size) const
 			Node *lowest = nullptr;
 			while (!successor.empty()) {
 				Node *curr_s = new Node();
+				addr.push_front(curr_s);
 				Grid curr_g = successor.top();
 				curr_s->grid = curr_g;
 				if (closed.count(*curr_s) == 0) {
@@ -218,9 +220,8 @@ std::list<Grid>	Solver::solve(Grid grid, size_t &time, size_t &size) const
 						if (lowest == nullptr || curr_s->cost < lowest->cost)
 							lowest = curr_s;
 						curr_s->parent = curr;
-						if (! (this->_opt & OPT_G)) {
+						if (!(this->_opt & OPT_G)) {
 							open.push(curr_s);
-							addr.push_front(curr_s);
 						}
 					}
 				}
@@ -228,7 +229,6 @@ std::list<Grid>	Solver::solve(Grid grid, size_t &time, size_t &size) const
 			}
 			if (lowest != nullptr && this->_opt & OPT_G) {
 				open.push(lowest);
-				addr.push_front(lowest);
 			}
 		}
 		else

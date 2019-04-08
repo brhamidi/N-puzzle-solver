@@ -48,8 +48,8 @@ Grid	fillGrid(std::fstream &fs, int size)
 Grid	getGridFromFile(std::string filename)
 {
 	std::string		line;
-	std::fstream		fs;
-	int			size = 0;
+	std::fstream	fs;
+	int				size = 0;
 	Grid			e;
 
 	fs.open(filename, std::fstream::in);
@@ -73,7 +73,7 @@ Grid	getGridFromFile(std::string filename)
 
 void	graphicMode(Solver &solver, size_t &time, size_t &size)
 {
-	Graphic_displayer	displayer = Graphic_displayer(solver.getSize(), "example/taq3");
+	Graphic_displayer	displayer = Graphic_displayer(solver.getSize(), "npuzzle_image");
 	eDir	e;
 	int		moves = 0;
 	displayer.list_displayer(solver.getPuzzle(), moves);
