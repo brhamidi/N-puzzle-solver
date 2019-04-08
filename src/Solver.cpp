@@ -1,8 +1,6 @@
 #include "Solver.hpp"
 
-PNode::PNode(Node *n) : node(n)
-{
-}
+PNode::PNode(Node *n) : node(n) {}
 
 bool	Solver::canMove(eDir dir, Grid grid) const
 {
@@ -50,37 +48,6 @@ std::string Solver::_gridToString(const Grid grid) const
 		for (auto n: line)
 			stringGrid += std::to_string(n);
 	return stringGrid;
-}
-
-bool Solver::add_in_open(Node *node, std::priority_queue<Node *,
-		std::vector<Node *>, mycomparison> open, Node *parent, std::unordered_map<std::string, PNode> &open_map,
-		std::priority_queue<Node *, std::vector<Node *>, mycomparison> &openref) const
-{
-	Node *e;
-	int i = 0;
-	PNode pnode(node);
-	std::string stringGrid = this->_gridToString(node->grid);
-	auto got = open_map.find(stringGrid);
-
-	if (got == open_map.end())
-	{
-		open_map.insert(std::pair<std::string, PNode>(stringGrid, pnode));
-		return true;
-	}
-	if (got->second.node->cost > node->cost)
-	{
-		got->second.node->parent = parent;
-		Node	*newNode = new Node();
-		newNode->parent = got->second.node->parent;
-		newNode->grid = got->second.node->grid;
-		newNode->cost = node->cost;
-		newNode->h = got->second.node->h;
-		newNode->g = got->second.node->g;
-		openref.push(newNode);
-		got->second.node->cost = -1;
-		got->second.node = newNode;
-	}
-	return false;
 }
 
 int	Solver::g(Node *curr_node) const
@@ -171,8 +138,46 @@ int	Solver::h(const Grid & g) const
 	return manathan(g);
 }
 
+bool Solver::add_in_open(Node *node, std::priority_queue<Node *,
+		std::vector<Node *>, mycomparison> open, Node *parent, std::unordered_map<std::string, PNode> &open_map,
+		std::priority_queue<Node *, std::vector<Node *>, mycomparison> &openref, std::list<Node *> &addr) const
+{
+	Node *e;
+	int i = 0;
+	PNode pnode(node);
+	std::string stringGrid = this->_gridToString(node->grid);
+	auto got = open_map.find(stringGrid);
+
+	if (got == open_map.end())
+	{
+		open_map.insert(std::pair<std::string, PNode>(stringGrid, pnode));
+		return true;
+	}
+	if (got->second.node->cost > node->cost)
+	{
+		got->second.node->parent = parent;
+		Node	*newNode = new Node();
+		addr.push_front(newNode);
+		newNode->parent = got->second.node->parent;
+		newNode->grid = got->second.node->grid;
+		newNode->cost = node->cost;
+		newNode->h = got->second.node->h;
+		newNode->g = got->second.node->g;
+		openref.push(newNode);
+		got->second.node->cost = -1;
+		got->second.node = newNode;
+	}
+	return false;
+}
+
+void	Solver::_free_all(std::list<Node *> & addr) const
+{
+//	for (auto * e : addr)
+//		delete e;
+}
 std::list<Grid>	Solver::solve(Grid grid, size_t &time, size_t &size) const
 {
+	std::list<Node *> addr;
 	std::priority_queue<Node *, std::vector<Node *>, mycomparison> open;
 	std::unordered_map<std::string, PNode> open_map;
 	std::unordered_set<Node, NodeHash> closed;
@@ -183,6 +188,7 @@ std::list<Grid>	Solver::solve(Grid grid, size_t &time, size_t &size) const
 	start->grid = grid;
 	start->cost = h(grid) + 1;
 	open.push(start);
+	addr.push_front(start);
 	while (!open.empty()) {
 		curr = open.top();
 
@@ -190,7 +196,8 @@ std::list<Grid>	Solver::solve(Grid grid, size_t &time, size_t &size) const
 		{
 			++time;
 			if (curr->grid == this->_puzzleSolved) {
-				std::cout << "Solution found:\n";
+				std::cout << "Solution found" << std::endl;
+				_free_all(addr);
 				return reconstruct_path(curr);
 			}
 			size = size >= open.size() ? size : open.size();
@@ -206,19 +213,23 @@ std::list<Grid>	Solver::solve(Grid grid, size_t &time, size_t &size) const
 					curr_s->h = h(curr_g);
 					curr_s->g = g(curr);
 					curr_s->cost = curr_s->h + curr_s->g;
-					if (add_in_open(curr_s, open, curr, open_map, open))
+					if (add_in_open(curr_s, open, curr, open_map, open, addr))
 					{
 						if (lowest == nullptr || curr_s->cost < lowest->cost)
 							lowest = curr_s;
 						curr_s->parent = curr;
-						if (! (this->_opt & OPT_G))
+						if (! (this->_opt & OPT_G)) {
 							open.push(curr_s);
+							addr.push_front(curr_s);
+						}
 					}
 				}
 				successor.pop();
 			}
-			if (lowest != nullptr && this->_opt & OPT_G)
+			if (lowest != nullptr && this->_opt & OPT_G) {
 				open.push(lowest);
+				addr.push_front(lowest);
+			}
 		}
 		else
 			open.pop();

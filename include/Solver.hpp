@@ -60,6 +60,7 @@ class Solver
 		void				_gridMover(eDir dir, Grid &grid) const;
 		int					_countInversion(std::vector<int>, std::vector<int>) const;
 		int					_countEmptyXLength(std::vector<int>, std::vector<int>) const;
+		void				_free_all(std::list<Node *> &) const;
 		std::string			_gridToString(const Grid grid) const;
 
 		int					_n;
@@ -78,7 +79,8 @@ class Solver
 		bool	add_in_open(Node *node, std::priority_queue<Node *,
 				std::vector<Node *>, mycomparison> open, Node*,
 				std::unordered_map<std::string, PNode> &open_map,
-				std::priority_queue<Node *,	std::vector<Node *>, mycomparison> &) const;
+				std::priority_queue<Node *,	std::vector<Node *>, mycomparison> &,
+				std::list<Node *> &) const;
 		std::stack<Grid>	getSuccessor(Node *curr) const;
 		std::list<Grid>		reconstruct_path(Node *) const;
 		int					getCoordSolved(int , bool) const;
